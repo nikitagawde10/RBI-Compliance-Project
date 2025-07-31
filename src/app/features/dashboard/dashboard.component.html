@@ -1,0 +1,275 @@
+<div class="dashboard-container">
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="h2 mb-2 text-gradient">Dashboard</h1>
+      <p class="text-muted mb-0" *ngIf="currentUser$ | async as user">
+        Welcome back, <strong>User{{ user.firstName }}</strong
+        >! 👋
+      </p>
+    </div>
+    <div class="col-auto">
+      <div class="d-flex gap-2">
+        <!-- <button class="btn btn-outline-primary" (click)="exportData()">
+          <i class="fas fa-download me-2"></i>
+          Export Data
+        </button> -->
+        <div class="dropdown position-relative">
+          <button
+            class="btn btn-primary dropdown-toggle"
+            type="button"
+            (click)="toggleQuickActions($event)"
+          >
+            <i class="fas fa-plus me-2"></i>
+            Quick Action
+          </button>
+          <ul class="custom-dropdown-menu" [class.show]="showQuickActions">
+            <li>
+              <a class="dropdown-item" routerLink="/circulars/upload"
+                ><i class="fas fa-upload me-2"></i>Upload Circular</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/tasks/create"
+                ><i class="fas fa-plus me-2"></i>Create Task</a
+              >
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/reports"
+                ><i class="fas fa-chart-bar me-2"></i>Generate Report</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="row mb-4" *ngIf="taskStats$ | async as stats">
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="stats-card" (click)="navigateToTasks('all')">
+        <div class="d-flex align-items-center">
+          <div
+            class="icon-wrapper bg-primary-subtle text-primary-emphasis me-3"
+          >
+            <i class="fas fa-tasks"></i>
+          </div>
+          <div>
+            <h3 class="mb-0 fw-bold text-primary">{{ stats.total }}</h3>
+            <small class="text-muted text-uppercase fw-semibold"
+              >Total Tasks</small
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="stats-card warning" (click)="navigateToTasks('in-progress')">
+        <div class="d-flex align-items-center">
+          <div
+            class="icon-wrapper bg-warning-subtle text-warning-emphasis me-3"
+          >
+            <i class="fas fa-clock"></i>
+          </div>
+          <div>
+            <h3 class="mb-0 fw-bold text-warning">{{ stats.inProgress }}</h3>
+            <small class="text-muted text-uppercase fw-semibold"
+              >In Progress</small
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="stats-card success" (click)="navigateToTasks('completed')">
+        <div class="d-flex align-items-center">
+          <div
+            class="icon-wrapper bg-success-subtle text-success-emphasis me-3"
+          >
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div>
+            <h3 class="mb-0 fw-bold text-success">{{ stats.completed }}</h3>
+            <small class="text-muted text-uppercase fw-semibold"
+              >Completed</small
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6 mb-3">
+      <div class="stats-card danger" (click)="navigateToTasks('overdue')">
+        <div class="d-flex align-items-center">
+          <div class="icon-wrapper bg-danger-subtle text-danger-emphasis me-3">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <div>
+            <h3 class="mb-0 fw-bold text-danger">{{ stats.overdue }}</h3>
+            <small class="text-muted text-uppercase fw-semibold">Overdue</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="row">
+    <div class="col-lg-8 mb-4">
+      <div class="card h-100">
+        <div class="card-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+              <i class="fas fa-history text-primary me-2"></i>
+              Recent Activities
+            </h5>
+            <button
+              class="btn btn-sm btn-outline-primary"
+              routerLink="/notifications"
+            >
+              View All
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div
+            *ngFor="let activity of recentActivities$ | async"
+            class="activity-item"
+          >
+            <div class="d-flex align-items-start">
+              <div
+                class="rounded-circle me-3 d-flex align-items-center justify-content-center"
+                style="width: 40px; height: 40px"
+                [ngClass]="getActivityIconClass(activity.type)"
+              >
+                <i class="fas" [ngClass]="getActivityIcon(activity.type)"></i>
+              </div>
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <h6 class="mb-1 fw-semibold">{{ activity.title }}</h6>
+                    <p class="text-muted mb-0 small">{{ activity.message }}</p>
+                  </div>
+                  <small class="text-muted">{{
+                    activity.createdAt | date : "short"
+                  }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            *ngIf="(recentActivities$ | async)?.length === 0"
+            class="text-center py-4"
+          >
+            <i class="fas fa-history fa-3x text-muted mb-3"></i>
+            <h6 class="text-muted">No recent activities</h6>
+            <p class="text-muted small">
+              Your recent activities will appear here
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-bolt text-warning me-2"></i>
+            Quick Actions
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-3">
+            <button
+              class="btn btn-primary d-flex align-items-center justify-content-start"
+              routerLink="/circulars/upload"
+            >
+              <div class="bg-white bg-opacity-20 rounded-circle p-2 me-3">
+                <i class="fas fa-upload"></i>
+              </div>
+              <div class="text-start">
+                <div class="fw-semibold">Upload Circular</div>
+                <small class="opacity-75">Add new regulatory document</small>
+              </div>
+            </button>
+            <button
+              class="btn btn-success d-flex align-items-center justify-content-start"
+              routerLink="/tasks/create"
+            >
+              <div class="bg-white bg-opacity-20 rounded-circle p-2 me-3">
+                <i class="fas fa-plus"></i>
+              </div>
+              <div class="text-start">
+                <div class="fw-semibold">Create Task</div>
+                <small class="opacity-75">Assign new compliance task</small>
+              </div>
+            </button>
+            <button
+              class="btn btn-info d-flex align-items-center justify-content-start"
+              routerLink="/reports"
+            >
+              <div class="bg-white bg-opacity-20 rounded-circle p-2 me-3">
+                <i class="fas fa-chart-bar"></i>
+              </div>
+              <div class="text-start">
+                <div class="fw-semibold">Generate Report</div>
+                <small class="opacity-75">Create compliance report</small>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-server text-success me-2"></i>
+            System Status
+          </h5>
+        </div>
+        <div class="card-body">
+          <div
+            class="d-flex justify-content-between align-items-center mb-3 p-3 bg-success-subtle rounded"
+          >
+            <div class="d-flex align-items-center">
+              <div
+                class="bg-success rounded-circle me-3"
+                style="width: 8px; height: 8px"
+              ></div>
+              <span class="fw-medium">AI Processing</span>
+            </div>
+            <span class="badge bg-success">Online</span>
+          </div>
+          <div
+            class="d-flex justify-content-between align-items-center mb-3 p-3 bg-success-subtle rounded"
+          >
+            <div class="d-flex align-items-center">
+              <div
+                class="bg-success rounded-circle me-3"
+                style="width: 8px; height: 8px"
+              ></div>
+              <span class="fw-medium">Database</span>
+            </div>
+            <span class="badge bg-success">Connected</span>
+          </div>
+          <div
+            class="d-flex justify-content-between align-items-center p-3 bg-success-subtle rounded"
+          >
+            <div class="d-flex align-items-center">
+              <div
+                class="bg-success rounded-circle me-3"
+                style="width: 8px; height: 8px"
+              ></div>
+              <span class="fw-medium">Notifications</span>
+            </div>
+            <span class="badge bg-success">Active</span>
+          </div>
+        </div>
+      </div> -->
+    </div>
+  </div>
+</div>

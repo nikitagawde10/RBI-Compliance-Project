@@ -1,0 +1,230 @@
+<nav
+  class="navbar navbar-expand-lg navbar-light bg-white fixed-top border-bottom"
+>
+  <div class="container-fluid px-4" style="overflow: visible">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/dashboard">
+      <div
+        class="text-white d-flex align-items-center justify-content-center"
+        style="width: 200px; height: 40px; margin-right: 10px"
+      >
+        <img
+          class="img-fluid logo-img"
+          src="https://neoquant.com/wp-content/uploads/2024/07/NeoQuant_Solutions2.png"
+          alt="logo"
+          width="100%"
+          height="100%"
+        />
+      </div>
+    </a>
+
+    <button
+      class="navbar-toggler border-0"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto ms-4">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
+            <i class="fas fa-tachometer-alt me-2"></i>
+            Dashboard
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/circulars" routerLinkActive="active">
+            <i class="fas fa-file-alt me-2"></i>
+            Circulars
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/tasks" routerLinkActive="active">
+            <i class="fas fa-tasks me-2"></i>
+            Tasks
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/reports" routerLinkActive="active">
+            <i class="fas fa-chart-bar me-2"></i>
+            Reports
+          </a>
+        </li>
+      </ul>
+
+      <div
+        class="navbar-nav d-flex flex-row align-items-center gap-3"
+        *ngIf="currentUser$ | async as user"
+      >
+        <!-- Notifications -->
+        <div class="nav-item position-relative">
+          <button
+            class="btn btn-link nav-link position-relative p-2"
+            (click)="toggleNotifications($event)"
+            [class.active]="showNotifications"
+          >
+            <i class="fas fa-bell"></i>
+            <span
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+              *ngIf="unreadCount$ | async as count; else noBadge"
+            >
+              {{ count > 99 ? "99+" : count }}
+            </span>
+            <ng-template #noBadge></ng-template>
+          </button>
+
+          <!-- Notifications Dropdown -->
+          <div class="notifications-dropdown" [class.show]="showNotifications">
+            <div class="dropdown-header">
+              <div class="d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Notifications</h6>
+                <button
+                  class="btn btn-sm btn-link text-primary p-0"
+                  (click)="markAllAsRead()"
+                >
+                  Mark all read
+                </button>
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="notifications-list">
+              <div
+                *ngFor="let notification of notifications$ | async"
+                class="notification-item"
+                [class.unread]="!notification.read"
+                (click)="markAsRead(notification.id)"
+              >
+                <div class="d-flex align-items-start">
+                  <div class="notification-icon me-2">
+                    <i
+                      class="fas"
+                      [ngClass]="getNotificationIcon(notification.type)"
+                    ></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="fw-semibold small">
+                      {{ notification.title }}
+                    </div>
+                    <div class="text-muted small">
+                      {{ notification.message }}
+                    </div>
+                    <div class="text-muted" style="font-size: 0.75rem">
+                      {{ notification.createdAt | date : "short" }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                *ngIf="(notifications$ | async)?.length === 0"
+                class="notification-item text-center text-muted"
+              >
+                No notifications
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-footer text-center">
+              <a
+                routerLink="/notifications"
+                class="btn btn-sm btn-primary"
+                (click)="closeNotifications()"
+                >View All</a
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Dropdown -->
+        <div class="nav-item position-relative">
+          <button
+            class="btn btn-link nav-link d-flex align-items-center p-2"
+            (click)="toggleProfile($event)"
+            [class.active]="showProfile"
+          >
+            <div
+              class="bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center"
+              style="width: 32px; height: 32px; font-size: 0.875rem"
+            >
+              {{ getUserInitials(user) }}
+            </div>
+            <div class="d-none d-md-block">
+              <div class="fw-semibold small">
+                {{ getUserFullName(user) }}
+              </div>
+              <div class="text-muted" style="font-size: 0.75rem">
+                {{ user?.role || "User" }}
+              </div>
+            </div>
+            <i class="fas fa-chevron-down ms-2 small"></i>
+          </button>
+
+          <!-- Profile Dropdown -->
+          <div class="profile-dropdown" [class.show]="showProfile">
+            <div class="dropdown-header">
+              <div class="d-flex align-items-center p-2">
+                <div
+                  class="bg-primary text-white rounded-circle me-3 d-flex align-items-center justify-content-center"
+                  style="width: 40px; height: 40px"
+                >
+                  {{ getUserInitials(user) }}
+                </div>
+                <div>
+                  <div class="fw-semibold">{{ getUserFullName(user) }}</div>
+                  <small class="text-muted">{{
+                    user?.email || "No email"
+                  }}</small>
+                  <div class="small">
+                    <span
+                      class="badge bg-primary-subtle text-primary-emphasis"
+                      >{{ user?.role || "User" }}</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="dropdown-divider"></div>
+            <a
+              class="dropdown-item"
+              routerLink="/profile"
+              (click)="closeProfile()"
+            >
+              <i class="fas fa-user-cog me-3 text-primary"></i>
+              Profile Settings
+            </a>
+            <a
+              class="dropdown-item"
+              routerLink="/notifications"
+              (click)="closeProfile()"
+            >
+              <i class="fas fa-bell me-3 text-warning"></i>
+              Notifications
+              <span
+                class="badge bg-danger ms-auto"
+                *ngIf="unreadCount$ | async as count"
+                >{{ count }}</span
+              >
+            </a>
+            <a
+              class="dropdown-item"
+              routerLink="/settings"
+              (click)="closeProfile()"
+            >
+              <i class="fas fa-cog me-3 text-secondary"></i>
+              Preferences
+            </a>
+            <div class="dropdown-divider"></div>
+            <a
+              class="dropdown-item text-danger"
+              href="#"
+              (click)="logout($event)"
+            >
+              <i class="fas fa-sign-out-alt me-3"></i>
+              Sign Out
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
