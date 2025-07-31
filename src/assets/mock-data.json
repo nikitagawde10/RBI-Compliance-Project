@@ -1,4 +1,156 @@
 {
+  "departments": [
+    {
+      "id": "1",
+      "name": "Administration",
+      "code": "ADMIN",
+      "description": "System administration and management",
+      "headId": "1",
+      "memberCount": 3,
+      "activeTasks": 5,
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "2",
+      "name": "Compliance",
+      "code": "COMP",
+      "description": "Regulatory compliance and oversight",
+      "headId": "2",
+      "memberCount": 8,
+      "activeTasks": 15,
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "3",
+      "name": "Risk Management",
+      "code": "RISK",
+      "description": "Risk assessment and mitigation",
+      "headId": "3",
+      "memberCount": 12,
+      "activeTasks": 8,
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "4",
+      "name": "Operations",
+      "code": "OPS",
+      "description": "Daily operational activities",
+      "headId": null,
+      "memberCount": 15,
+      "activeTasks": 22,
+      "createdAt": "2025-01-01T00:00:00Z"
+    }
+  ],
+  "circulars": [
+    {
+      "id": "1",
+      "referenceNumber": "RBI/2025/001",
+      "title": "Guidelines on Risk Management Framework",
+      "description": "Updated guidelines for risk management in banking sector",
+      "content": "This circular provides comprehensive guidelines for implementing a robust risk management framework in banking institutions...",
+      "regulatoryBody": "RBI",
+      "category": "Risk Management",
+      "priority": "HIGH",
+      "issuedDate": "2025-01-15T00:00:00Z",
+      "effectiveDate": "2025-02-01T00:00:00Z",
+      "status": "ASSIGNED",
+      "attachments": [
+        {
+          "id": "1",
+          "filename": "risk-framework-guidelines.pdf",
+          "url": "/attachments/risk-framework-guidelines.pdf",
+          "size": 2048576,
+          "type": "application/pdf",
+          "uploadedAt": "2025-01-15T00:00:00Z"
+        }
+      ],
+      "aiAnalysis": {
+        "id": "ai-1",
+        "confidence": 0.92,
+        "suggestedDepartments": ["Risk Management", "Compliance", "Operations"],
+        "extractedActions": [
+          {
+            "id": "action-1",
+            "description": "Update risk assessment procedures",
+            "priority": "HIGH",
+            "estimatedHours": 16,
+            "dueDate": "2025-02-15T00:00:00Z"
+          }
+        ],
+        "priorityAssessment": "HIGH",
+        "processingTime": 3.2,
+        "status": "COMPLETED"
+      },
+      "createdAt": "2025-01-15T00:00:00Z",
+      "updatedAt": "2025-01-16T00:00:00Z"
+    },
+    {
+      "id": "2",
+      "referenceNumber": "SEBI/2025/002",
+      "title": "Compliance Framework for NBFCs",
+      "description": "New compliance requirements for Non-Banking Financial Companies",
+      "content": "This circular outlines the enhanced compliance framework for NBFCs...",
+      "regulatoryBody": "SEBI",
+      "category": "Compliance",
+      "priority": "MEDIUM",
+      "issuedDate": "2025-01-20T00:00:00Z",
+      "effectiveDate": "2025-03-01T00:00:00Z",
+      "status": "PROCESSING",
+      "attachments": [],
+      "createdAt": "2025-01-20T00:00:00Z",
+      "updatedAt": "2025-01-21T00:00:00Z"
+    },
+    {
+      "id": "3",
+      "referenceNumber": "IRDAI/2025/003",
+      "title": "Cybersecurity Measures for Insurers",
+      "description": "Mandatory cybersecurity protocols for insurance companies",
+      "content": "The circular mandates adoption of multi-factor authentication, regular penetration testing, and employee cybersecurity training...",
+      "regulatoryBody": "IRDAI",
+      "category": "Cybersecurity",
+      "priority": "HIGH",
+      "issuedDate": "2025-02-05T00:00:00Z",
+      "effectiveDate": "2025-04-01T00:00:00Z",
+      "status": "RECEIVED",
+      "attachments": [
+        {
+          "id": "2",
+          "filename": "irdai-cyber-guidelines.pdf",
+          "url": "/attachments/irdai-cyber-guidelines.pdf",
+          "size": 1024000,
+          "type": "application/pdf",
+          "uploadedAt": "2025-02-05T00:00:00Z"
+        }
+      ],
+      "aiAnalysis": {
+        "id": "ai-3",
+        "confidence": 0.95,
+        "suggestedDepartments": ["IT Security", "Compliance", "Training"],
+        "extractedActions": [
+          {
+            "id": "action-4",
+            "description": "Initiate cybersecurity awareness training for all employees",
+            "priority": "HIGH",
+            "estimatedHours": 10,
+            "dueDate": "2025-04-10T00:00:00Z"
+          },
+          {
+            "id": "action-5",
+            "description": "Schedule penetration testing with third-party vendor",
+            "priority": "HIGH",
+            "estimatedHours": 20,
+            "dueDate": "2025-04-15T00:00:00Z"
+          }
+        ],
+        "priorityAssessment": "HIGH",
+        "processingTime": 4.1,
+        "status": "COMPLETED"
+      },
+      "createdAt": "2025-02-05T00:00:00Z",
+      "updatedAt": "2025-02-06T00:00:00Z"
+    }
+  ],
+
   "users": [
     {
       "id": "1",
@@ -12,9 +164,7 @@
         "code": "ADMIN"
       },
       "isActive": true,
-      "lastLogin": "2024-01-15T14:30:00Z",
-      "createdAt": "2024-01-01T00:00:00Z",
-      "permissions": []
+      "createdAt": "2025-01-01T00:00:00Z"
     },
     {
       "id": "2",
@@ -28,9 +178,7 @@
         "code": "COMP"
       },
       "isActive": true,
-      "lastLogin": "2024-01-15T10:15:00Z",
-      "createdAt": "2024-01-01T00:00:00Z",
-      "permissions": []
+      "createdAt": "2025-01-01T00:00:00Z"
     },
     {
       "id": "3",
@@ -44,9 +192,7 @@
         "code": "RISK"
       },
       "isActive": true,
-      "lastLogin": "2024-01-14T16:45:00Z",
-      "createdAt": "2024-01-01T00:00:00Z",
-      "permissions": []
+      "createdAt": "2025-01-01T00:00:00Z"
     },
     {
       "id": "4",
@@ -60,160 +206,7 @@
         "code": "RISK"
       },
       "isActive": true,
-      "lastLogin": "2024-01-15T09:00:00Z",
-      "createdAt": "2024-01-01T00:00:00Z",
-      "permissions": []
-    }
-  ],
-  "departments": [
-    {
-      "id": "1",
-      "name": "Administration",
-      "code": "ADMIN",
-      "description": "System administration and management",
-      "headId": "1",
-      "memberCount": 3,
-      "activeTasks": 5,
-      "createdAt": "2024-01-01T00:00:00Z"
-    },
-    {
-      "id": "2",
-      "name": "Compliance",
-      "code": "COMP",
-      "description": "Regulatory compliance and oversight",
-      "headId": "2",
-      "memberCount": 8,
-      "activeTasks": 15,
-      "createdAt": "2024-01-01T00:00:00Z"
-    },
-    {
-      "id": "3",
-      "name": "Risk Management",
-      "code": "RISK",
-      "description": "Risk assessment and mitigation",
-      "headId": "3",
-      "memberCount": 12,
-      "activeTasks": 8,
-      "createdAt": "2024-01-01T00:00:00Z"
-    },
-    {
-      "id": "4",
-      "name": "Operations",
-      "code": "OPS",
-      "description": "Daily operational activities",
-      "headId": null,
-      "memberCount": 15,
-      "activeTasks": 22,
-      "createdAt": "2024-01-01T00:00:00Z"
-    }
-  ],
-  "circulars": [
-    {
-      "id": "1",
-      "referenceNumber": "RBI/2024/001",
-      "title": "Guidelines on Risk Management Framework",
-      "description": "Updated guidelines for risk management in banking sector",
-      "content": "This circular provides comprehensive guidelines for implementing a robust risk management framework in banking institutions...",
-      "regulatoryBody": "RBI",
-      "category": "Risk Management",
-      "priority": "HIGH",
-      "issuedDate": "2024-01-15T00:00:00Z",
-      "effectiveDate": "2024-02-01T00:00:00Z",
-      "status": "ASSIGNED",
-      "attachments": [
-        {
-          "id": "1",
-          "filename": "risk-framework-guidelines.pdf",
-          "url": "/attachments/risk-framework-guidelines.pdf",
-          "size": 2048576,
-          "type": "application/pdf",
-          "uploadedAt": "2024-01-15T00:00:00Z"
-        }
-      ],
-      "aiAnalysis": {
-        "id": "ai-1",
-        "confidence": 0.92,
-        "suggestedDepartments": ["Risk Management", "Compliance", "Operations"],
-        "extractedActions": [
-          {
-            "id": "action-1",
-            "description": "Update risk assessment procedures",
-            "priority": "HIGH",
-            "estimatedHours": 16,
-            "dueDate": "2024-02-15T00:00:00Z"
-          }
-        ],
-        "priorityAssessment": "HIGH",
-        "processingTime": 3.2,
-        "status": "COMPLETED"
-      },
-      "createdAt": "2024-01-15T00:00:00Z",
-      "updatedAt": "2024-01-16T00:00:00Z"
-    },
-    {
-      "id": "2",
-      "referenceNumber": "SEBI/2024/002",
-      "title": "Compliance Framework for NBFCs",
-      "description": "New compliance requirements for Non-Banking Financial Companies",
-      "content": "This circular outlines the enhanced compliance framework for NBFCs...",
-      "regulatoryBody": "SEBI",
-      "category": "Compliance",
-      "priority": "MEDIUM",
-      "issuedDate": "2024-01-20T00:00:00Z",
-      "effectiveDate": "2024-03-01T00:00:00Z",
-      "status": "PROCESSING",
-      "attachments": [],
-      "createdAt": "2024-01-20T00:00:00Z",
-      "updatedAt": "2024-01-21T00:00:00Z"
-    },
-    {
-      "id": "3",
-      "referenceNumber": "IRDAI/2024/003",
-      "title": "Cybersecurity Measures for Insurers",
-      "description": "Mandatory cybersecurity protocols for insurance companies",
-      "content": "The circular mandates adoption of multi-factor authentication, regular penetration testing, and employee cybersecurity training...",
-      "regulatoryBody": "IRDAI",
-      "category": "Cybersecurity",
-      "priority": "HIGH",
-      "issuedDate": "2024-02-05T00:00:00Z",
-      "effectiveDate": "2024-04-01T00:00:00Z",
-      "status": "RECEIVED",
-      "attachments": [
-        {
-          "id": "2",
-          "filename": "irdai-cyber-guidelines.pdf",
-          "url": "/attachments/irdai-cyber-guidelines.pdf",
-          "size": 1024000,
-          "type": "application/pdf",
-          "uploadedAt": "2024-02-05T00:00:00Z"
-        }
-      ],
-      "aiAnalysis": {
-        "id": "ai-3",
-        "confidence": 0.95,
-        "suggestedDepartments": ["IT Security", "Compliance", "Training"],
-        "extractedActions": [
-          {
-            "id": "action-4",
-            "description": "Initiate cybersecurity awareness training for all employees",
-            "priority": "HIGH",
-            "estimatedHours": 10,
-            "dueDate": "2024-04-10T00:00:00Z"
-          },
-          {
-            "id": "action-5",
-            "description": "Schedule penetration testing with third-party vendor",
-            "priority": "HIGH",
-            "estimatedHours": 20,
-            "dueDate": "2024-04-15T00:00:00Z"
-          }
-        ],
-        "priorityAssessment": "HIGH",
-        "processingTime": 4.1,
-        "status": "COMPLETED"
-      },
-      "createdAt": "2024-02-05T00:00:00Z",
-      "updatedAt": "2024-02-06T00:00:00Z"
+      "createdAt": "2025-01-01T00:00:00Z"
     }
   ],
   "tasks": [
@@ -237,9 +230,9 @@
       "priority": "HIGH",
       "status": "IN_PROGRESS",
       "progress": 60,
-      "dueDate": "2024-02-15T00:00:00Z",
-      "createdAt": "2024-01-16T00:00:00Z",
-      "updatedAt": "2024-01-18T00:00:00Z",
+      "dueDate": "2025-02-15T00:00:00Z",
+      "createdAt": "2025-01-16T00:00:00Z",
+      "updatedAt": "2025-01-18T00:00:00Z",
       "estimatedHours": 16,
       "actualHours": 10,
       "tags": ["risk", "assessment", "procedures"],
@@ -251,7 +244,7 @@
           "content": "Started working on the risk assessment procedures. Will need additional clarification on section 3.2.",
           "authorId": "4",
           "authorName": "Employee User",
-          "createdAt": "2024-01-17T10:30:00Z",
+          "createdAt": "2025-01-17T10:30:00Z",
           "isInternal": false
         }
       ]
@@ -263,9 +256,9 @@
       "circularId": "2",
       "assignmentId": "2",
       "assignedTo": {
-        "id": "4",
+        "id": "3",
         "name": "Department Head",
-        "role": "COMPLIANCE_OFFICER"
+        "role": "DEPARTMENT_HEAD"
       },
       "assignedBy": {
         "id": "2",
@@ -276,9 +269,9 @@
       "priority": "MEDIUM",
       "status": "PENDING",
       "progress": 0,
-      "dueDate": "2024-03-01T00:00:00Z",
-      "createdAt": "2024-01-21T00:00:00Z",
-      "updatedAt": "2024-01-21T00:00:00Z",
+      "dueDate": "2025-03-01T00:00:00Z",
+      "createdAt": "2025-01-21T00:00:00Z",
+      "updatedAt": "2025-01-21T00:00:00Z",
       "estimatedHours": 24,
       "actualHours": 0,
       "tags": ["compliance", "policy", "review"],
@@ -287,9 +280,9 @@
         {
           "id": "c3",
           "content": "Started reviewing SEBI compliance updates.",
-          "authorId": "4",
+          "authorId": "3",
           "authorName": "Department Head",
-          "createdAt": "2024-01-22T09:15:00Z",
+          "createdAt": "2025-01-22T09:15:00Z",
           "isInternal": false
         },
         {
@@ -297,7 +290,7 @@
           "content": "Tag me when the first draft is ready for validation.",
           "authorId": "2",
           "authorName": "Compliance Officer",
-          "createdAt": "2024-01-22T11:00:00Z",
+          "createdAt": "2025-01-22T11:00:00Z",
           "isInternal": false
         }
       ]
@@ -305,26 +298,26 @@
     {
       "id": "3",
       "title": "Implement Digital Policyholder Guidelines",
-      "description": "Ensure alignment with IRDAI’s digital engagement norms",
+      "description": "Ensure alignment with IRDAI's digital engagement norms",
       "circularId": "3",
       "assignmentId": "3",
       "assignedTo": {
-        "id": "5",
-        "name": "Employee",
+        "id": "4",
+        "name": "Employee User",
         "role": "EMPLOYEE"
       },
       "assignedBy": {
-        "id": "2",
+        "id": "3",
         "name": "Department Head",
         "role": "DEPARTMENT_HEAD"
       },
-      "department": "Customer Experience",
+      "department": "Risk Management",
       "priority": "HIGH",
-      "status": "ASSIGNED",
+      "status": "ACCEPTED",
       "progress": 20,
-      "dueDate": "2024-04-10T00:00:00Z",
-      "createdAt": "2024-03-05T00:00:00Z",
-      "updatedAt": "2024-03-06T00:00:00Z",
+      "dueDate": "2025-04-10T00:00:00Z",
+      "createdAt": "2025-03-05T00:00:00Z",
+      "updatedAt": "2025-03-06T00:00:00Z",
       "estimatedHours": 40,
       "actualHours": 8,
       "tags": ["IRDAI", "digital", "customer-experience"],
@@ -336,19 +329,105 @@
           "description": "Develop multi-channel support system for policyholders",
           "priority": "HIGH",
           "estimatedHours": 24,
-          "dueDate": "2024-04-05T00:00:00Z"
+          "dueDate": "2025-04-05T00:00:00Z"
         },
         {
           "id": "action-5",
           "description": "Implement policyholder feedback loop with analytics dashboard",
           "priority": "MEDIUM",
           "estimatedHours": 16,
-          "dueDate": "2024-04-10T00:00:00Z"
+          "dueDate": "2025-04-10T00:00:00Z"
         }
       ]
+    },
+    {
+      "id": "4",
+      "title": "System Admin Task - Global Compliance Review",
+      "description": "System-wide compliance review across all departments",
+      "circularId": "4",
+      "assignmentId": "4",
+      "assignedTo": {
+        "id": "1",
+        "name": "System Admin",
+        "role": "SYSTEM_ADMIN"
+      },
+      "assignedBy": {
+        "id": "1",
+        "name": "System Admin",
+        "role": "SYSTEM_ADMIN"
+      },
+      "department": "Administration",
+      "priority": "CRITICAL",
+      "status": "IN_PROGRESS",
+      "progress": 30,
+      "dueDate": "2025-05-01T00:00:00Z",
+      "createdAt": "2025-04-01T00:00:00Z",
+      "updatedAt": "2025-04-03T00:00:00Z",
+      "estimatedHours": 60,
+      "actualHours": 18,
+      "tags": ["system", "compliance", "review"],
+      "attachments": [],
+      "comments": []
+    },
+    {
+      "id": "5",
+      "title": "Employee Personal Task",
+      "description": "Complete training modules and certification",
+      "circularId": "5",
+      "assignmentId": "5",
+      "assignedTo": {
+        "id": "4",
+        "name": "Employee User",
+        "role": "EMPLOYEE"
+      },
+      "assignedBy": {
+        "id": "2",
+        "name": "Compliance Officer",
+        "role": "COMPLIANCE_OFFICER"
+      },
+      "department": "Risk Management",
+      "priority": "LOW",
+      "status": "COMPLETED",
+      "progress": 100,
+      "dueDate": "2025-01-30T00:00:00Z",
+      "createdAt": "2025-01-10T00:00:00Z",
+      "updatedAt": "2025-01-28T00:00:00Z",
+      "estimatedHours": 8,
+      "actualHours": 6,
+      "tags": ["training", "certification"],
+      "attachments": [],
+      "comments": []
+    },
+    {
+      "id": "6",
+      "title": "Compliance Officer Assigned Task",
+      "description": "Review quarterly compliance reports",
+      "circularId": "6",
+      "assignmentId": "6",
+      "assignedTo": {
+        "id": "2",
+        "name": "Compliance Officer",
+        "role": "COMPLIANCE_OFFICER"
+      },
+      "assignedBy": {
+        "id": "3",
+        "name": "Department Head",
+        "role": "DEPARTMENT_HEAD"
+      },
+      "department": "Compliance",
+      "priority": "HIGH",
+      "status": "UNDER_REVIEW",
+      "progress": 85,
+      "dueDate": "2025-02-28T00:00:00Z",
+      "createdAt": "2025-02-01T00:00:00Z",
+      "updatedAt": "2025-02-15T00:00:00Z",
+      "estimatedHours": 20,
+      "actualHours": 17,
+      "tags": ["quarterly", "reports", "compliance"],
+      "attachments": [],
+      "comments": []
     }
   ],
-
   "taskStats": {
     "total": 48,
     "pending": 12,
@@ -363,12 +442,12 @@
     {
       "id": "1",
       "title": "Monthly Compliance Report",
-      "description": "Comprehensive compliance overview for January 2024",
+      "description": "Comprehensive compliance overview for January 2025",
       "type": "COMPLIANCE",
       "status": "COMPLETED",
-      "generatedAt": "2024-01-15T10:30:00Z",
+      "generatedAt": "2025-01-15T10:30:00Z",
       "generatedBy": "2",
-      "fileUrl": "/reports/monthly-compliance-jan-2024.pdf",
+      "fileUrl": "/reports/monthly-compliance-jan-2025.pdf",
       "fileSize": 1024000
     },
     {
@@ -377,7 +456,7 @@
       "description": "Quarterly performance analysis by department",
       "type": "PERFORMANCE",
       "status": "COMPLETED",
-      "generatedAt": "2024-01-10T14:15:00Z",
+      "generatedAt": "2025-01-10T14:15:00Z",
       "generatedBy": "1",
       "fileUrl": "/reports/dept-performance-q4-2023.pdf",
       "fileSize": 2048000
@@ -391,7 +470,7 @@
       "message": "You have been assigned a new task: Update Risk Assessment Procedures",
       "read": false,
       "userId": "4",
-      "createdAt": "2024-01-16T08:00:00Z",
+      "createdAt": "2025-01-16T08:00:00Z",
       "data": {
         "taskId": "1"
       }
@@ -400,11 +479,11 @@
       "id": "2",
       "type": "CIRCULAR",
       "title": "New circular received",
-      "message": "RBI/2024/003 - Updated KYC Guidelines has been uploaded",
+      "message": "RBI/2025/003 - Updated KYC Guidelines has been uploaded",
       "read": true,
       "userId": "4",
-      "createdAt": "2024-01-14T12:00:00Z",
-      "readAt": "2024-01-14T13:00:00Z",
+      "createdAt": "2025-01-14T12:00:00Z",
+      "readAt": "2025-01-14T13:00:00Z",
       "data": {
         "circularId": "3"
       }
@@ -416,7 +495,7 @@
       "message": "Task 'Compliance Policy Review' is due in 2 days",
       "read": false,
       "userId": "4",
-      "createdAt": "2024-01-13T09:00:00Z",
+      "createdAt": "2025-01-13T09:00:00Z",
       "data": {
         "taskId": "2"
       }
