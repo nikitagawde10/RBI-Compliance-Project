@@ -264,10 +264,10 @@ import { RegulatoryBody, Priority } from "../../../core/models/circular.model";
                     <button
                       type="button"
                       class="btn btn-outline-primary"
-                      (click)="saveDraft()"
+                      (click)="resetForm()"
                     >
-                      <i class="fas fa-save me-2"></i>
-                      Save Draft
+                      <i class="fa-solid fa-clock-rotate-left"></i>
+                      Reset Circular
                     </button>
                     <button
                       type="submit"
@@ -393,9 +393,8 @@ export class UploadCircularComponent {
     this.selectedFiles = Array.from(event.target.files);
   }
 
-  saveDraft() {
-    console.log("Saving draft...", this.uploadForm.value);
-    // Implement draft saving logic
+  resetForm() {
+    this.uploadForm.reset();
   }
 
   onSubmit() {
