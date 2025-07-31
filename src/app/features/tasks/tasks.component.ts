@@ -265,7 +265,7 @@ export class TasksComponent implements OnInit {
         "bg-warning-subtle text-warning-emphasis border border-warning-subtle",
       [Priority.HIGH]:
         "bg-danger-subtle text-danger-emphasis border border-danger-subtle",
-      [Priority.CRITICAL]: "bg-dark text-white",
+      [Priority.CRITICAL]: "bg-danger text-white",
     };
     return classes[priority] || "bg-secondary text-white";
   }

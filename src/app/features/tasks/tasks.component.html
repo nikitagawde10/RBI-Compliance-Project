@@ -248,20 +248,25 @@
               </td>
               <td>
                 <div>
-                  <div class="mb-1">
-                    <small class="text-muted">Assigned to:</small>
-                    <div class="fw-medium">{{ task.assignedTo.name }}</div>
+                  <div class="mb-1 d-flex flex-column">
+                    <small class="text-muted fw-medium">Assigned to:</small>
+                    <!-- <div class="fw-medium"></div> -->
                     <span
                       class="badge bg-info-subtle text-info-emphasis border border-info-subtle small"
                     >
                       {{ task.assignedTo.role }}
                     </span>
                   </div>
-                  <div>
-                    <small class="text-muted">Assigned by:</small>
-                    <div class="fw-medium small">
+                  <div class="mb-1 d-flex flex-column">
+                    <small class="text-muted fw-medium">Assigned by:</small>
+                    <!-- <div class="fw-medium small">
                       {{ task.assignedBy.name }}
-                    </div>
+                    </div> -->
+                    <span
+                      class="badge bg-primary-subtle text-info-emphasis border border-info-subtle small"
+                    >
+                      {{ task.assignedTo.role }}
+                    </span>
                   </div>
                 </div>
               </td>
