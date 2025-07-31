@@ -1,0 +1,356 @@
+<div class="container-fluid p-4">
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="h2 mb-2 text-gradient">Regulatory Circulars</h1>
+      <p class="text-muted mb-0">
+        Manage and track regulatory compliance documents
+      </p>
+    </div>
+    <div class="col-auto">
+      <div class="d-flex gap-2">
+        <button
+          class="btn btn-outline-secondary"
+          *ngIf="hasActiveFilters()"
+          (click)="clearAllFilters()"
+          title="Clear all filters"
+        >
+          <i class="fas fa-times me-2"></i>
+          Clear Filters
+        </button>
+        <button class="btn btn-outline-primary">
+          <i class="fas fa-filter me-2"></i>
+          Filter
+        </button>
+        <a routerLink="/circulars/upload" class="btn btn-primary">
+          <i class="fas fa-upload me-2"></i>
+          Upload Circular
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label fw-semibold text-muted small">
+            Regulatory Body
+          </label>
+          <select
+            class="form-select"
+            [(ngModel)]="selectedRegulatoryBody"
+            (change)="onRegulatoryBodyChange($event)"
+          >
+            <option value="">All Regulatory Bodies</option>
+            <option value="RBI">Reserve Bank of India (RBI)</option>
+            <option value="SEBI">Securities and Exchange Board (SEBI)</option>
+            <option value="IRDAI">
+              Insurance Regulatory Authority (IRDAI)
+            </option>
+            <option value="NABARD">
+              National Bank for Agriculture (NABARD)
+            </option>
+          </select>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label fw-semibold text-muted small">Status</label>
+          <select
+            class="form-select"
+            [(ngModel)]="selectedStatus"
+            (change)="onStatusChange($event)"
+          >
+            <option value="">All Status</option>
+            <option value="RECEIVED">Received</option>
+            <option value="PROCESSING">Processing</option>
+            <option value="ASSIGNED">Assigned</option>
+            <option value="IN_PROGRESS">In Progress</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="OVERDUE">Overdue</option>
+          </select>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label fw-semibold text-muted small"
+            >Priority</label
+          >
+          <select
+            class="form-select"
+            [(ngModel)]="selectedPriority"
+            (change)="onPriorityChange($event)"
+          >
+            <option value="">All Priorities</option>
+            <option value="LOW">Low Priority</option>
+            <option value="MEDIUM">Medium Priority</option>
+            <option value="HIGH">High Priority</option>
+            <option value="CRITICAL">Critical Priority</option>
+          </select>
+        </div>
+        <div class="col-lg-3 col-md-6">
+          <label class="form-label fw-semibold text-muted small">Search</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search text-muted"></i>
+            </span>
+            <input
+              type="search"
+              class="form-control"
+              placeholder="Search circulars..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange($event)"
+            />
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              *ngIf="searchTerm"
+              (click)="setSearchFilter('')"
+              title="Clear search"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Status Indicator -->
+      <div class="mt-3" *ngIf="hasActiveFilters()">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <small class="text-muted">Active filters:</small>
+          <span class="badge bg-primary" *ngIf="selectedRegulatoryBody">
+            Body: {{ selectedRegulatoryBody }}
+            <button
+              type="button"
+              class="btn-close btn-close-white ms-1"
+              (click)="setRegulatoryBodyFilter('')"
+              style="font-size: 0.7em"
+            ></button>
+          </span>
+          <span class="badge bg-primary" *ngIf="selectedStatus">
+            Status: {{ selectedStatus }}
+            <button
+              type="button"
+              class="btn-close btn-close-white ms-1"
+              (click)="setStatusFilter('')"
+              style="font-size: 0.7em"
+            ></button>
+          </span>
+          <span class="badge bg-primary" *ngIf="selectedPriority">
+            Priority: {{ selectedPriority }}
+            <button
+              type="button"
+              class="btn-close btn-close-white ms-1"
+              (click)="setPriorityFilter('')"
+              style="font-size: 0.7em"
+            ></button>
+          </span>
+          <span class="badge bg-primary" *ngIf="searchTerm">
+            Search: "{{ searchTerm }}"
+            <button
+              type="button"
+              class="btn-close btn-close-white ms-1"
+              (click)="setSearchFilter('')"
+              style="font-size: 0.7em"
+            ></button>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Circulars List -->
+  <div class="row" *ngIf="filteredCirculars$ | async as circulars">
+    <div class="col-12" *ngFor="let circular of circulars">
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <div class="d-flex align-items-center mb-3">
+                <div
+                  class="bg-primary-subtle text-primary rounded-circle p-3 me-3 d-flex align-items-center justify-content-center"
+                  style="width: 56px; height: 56px"
+                >
+                  <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <h5 class="mb-0 fw-semibold">
+                      <a
+                        [routerLink]="['/circulars', circular.id]"
+                        class="text-decoration-none"
+                      >
+                        {{ circular.title }}
+                      </a>
+                    </h5>
+                    <span
+                      class="badge"
+                      [ngClass]="getStatusBadgeClass(circular.status)"
+                    >
+                      {{ circular.status }}
+                    </span>
+                    <span
+                      class="badge"
+                      [ngClass]="getPriorityBadgeClass(circular.priority)"
+                    >
+                      {{ circular.priority }}
+                    </span>
+                  </div>
+                  <p class="text-muted mb-0">{{ circular.description }}</p>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-3">
+                  <div
+                    class="p-3 bg-primary-subtle border border-primary-subtle rounded"
+                  >
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Reference Number</label
+                    >
+                    <div class="fw-semibold">
+                      {{ circular.referenceNumber }}
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div
+                    class="p-3 bg-info-subtle border border-info-subtle rounded"
+                  >
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Regulatory Body</label
+                    >
+                    <div class="fw-semibold">
+                      <i class="fas fa-university text-info me-2"></i>
+                      {{ circular.regulatoryBody }}
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div
+                    class="p-3 bg-success-subtle border border-success-subtle rounded"
+                  >
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Issued Date</label
+                    >
+                    <div class="fw-semibold">
+                      <i class="fas fa-calendar text-success me-2"></i>
+                      {{ circular.issuedDate | date : "dd MMM yyyy" }}
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div
+                    class="p-3 bg-warning-subtle border border-warning-subtle rounded"
+                  >
+                    <label class="form-label fw-semibold text-muted small mb-1"
+                      >Effective Date</label
+                    >
+                    <div class="fw-semibold">
+                      <i class="fas fa-clock text-warning me-2"></i>
+                      {{ circular.effectiveDate | date : "dd MMM yyyy" }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex gap-2">
+                  <span class="badge bg-light text-dark border">
+                    <i class="fas fa-tag me-1"></i>
+                    {{ circular.category }}
+                  </span>
+                  <span
+                    class="badge bg-light text-dark border"
+                    *ngIf="circular.attachments?.length"
+                  >
+                    <i class="fas fa-paperclip me-1"></i>
+                    {{ circular.attachments.length }} Attachments
+                  </span>
+                </div>
+
+                <div class="btn-group">
+                  <a
+                    [routerLink]="['/circulars', circular.id]"
+                    class="btn btn-sm btn-outline-primary"
+                    title="View Details"
+                  >
+                    <i class="fas fa-eye"></i>
+                  </a>
+                  <button
+                    class="btn btn-sm btn-outline-info"
+                    title="Assign Tasks"
+                    (click)="assignTasks(circular.id)"
+                  >
+                    <i class="fas fa-users"></i>
+                  </button>
+                  <div class="btn-group">
+                    <button
+                      class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <i class="fas fa-ellipsis-h"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li>
+                        <a
+                          class="dropdown-item"
+                          href="#"
+                          (click)="downloadCircular(circular.id)"
+                        >
+                          <i class="fas fa-download me-2"></i>Download
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          class="dropdown-item"
+                          href="#"
+                          (click)="shareCircular(circular.id)"
+                        >
+                          <i class="fas fa-share me-2"></i>Share
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    class="text-center py-5"
+    *ngIf="(filteredCirculars$ | async)?.length === 0"
+  >
+    <div class="p-5 bg-light rounded border-2 border-dashed">
+      <i class="fas fa-file-alt fa-4x text-muted mb-3"></i>
+      <h4 class="text-muted" *ngIf="!hasActiveFilters()">No circulars found</h4>
+      <h4 class="text-muted" *ngIf="hasActiveFilters()">
+        No circulars match your filters
+      </h4>
+      <p class="text-muted" *ngIf="!hasActiveFilters()">
+        Upload your first regulatory circular to get started
+      </p>
+      <p class="text-muted" *ngIf="hasActiveFilters()">
+        Try adjusting your filters or clear them to see all circulars
+      </p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button
+          class="btn btn-outline-secondary"
+          *ngIf="hasActiveFilters()"
+          (click)="clearAllFilters()"
+        >
+          <i class="fas fa-times me-2"></i>
+          Clear Filters
+        </button>
+        <a routerLink="/circulars/upload" class="btn btn-primary">
+          <i class="fas fa-upload me-2"></i>
+          Upload Circular
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

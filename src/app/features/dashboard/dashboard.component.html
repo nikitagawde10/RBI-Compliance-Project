@@ -3,7 +3,7 @@
     <div class="col">
       <h1 class="h2 mb-2 text-gradient">Dashboard</h1>
       <p class="text-muted mb-0" *ngIf="currentUser$ | async as user">
-        Welcome back, <strong>User{{ user.firstName }}</strong
+        Welcome back, <strong>{{ user.firstName }}</strong
         >! 👋
       </p>
     </div>

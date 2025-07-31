@@ -348,6 +348,7 @@
       ]
     }
   ],
+
   "taskStats": {
     "total": 48,
     "pending": 12,
@@ -357,18 +358,7 @@
     "averageCompletionTime": 5.2,
     "completionRate": 87.5
   },
-  "taskComments": [
-    {
-      "id": "1",
-      "taskId": "1",
-      "content": "Started working on the risk assessment procedures. Will need additional clarification on section 3.2.",
-      "authorId": "4",
-      "authorName": "Employee User",
-      "createdAt": "2024-01-17T10:30:00Z",
-      "isInternal": false
-    }
-  ],
-  "taskAttachments": [],
+
   "reports": [
     {
       "id": "1",

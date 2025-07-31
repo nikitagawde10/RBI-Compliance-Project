@@ -470,14 +470,3 @@ body {
 .navbar .dropdown-menu {
   z-index: 1051 !important;
 }
-
-/* Force dropdown positioning */
-.dropdown {
-  position: relative !important;
-}
-
-.dropdown-menu {
-  position: fixed !important;
-  will-change: transform !important;
-  z-index: 1050 !important;
-}
