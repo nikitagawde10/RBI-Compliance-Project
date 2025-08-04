@@ -7,17 +7,19 @@ import {
   Circular,
   CircularStatus,
   Priority,
-  Assignment,
-  ActionItem,
 } from "../../../core/models/circular.model";
 import { Task } from "../../../core/models/task.model";
-import { Observable, combineLatest } from "rxjs";
+import { Observable } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
+import { FormsModule } from "@angular/forms";
+import { User, UserRole } from "../../../core/models/user.model";
+import { AuthService } from "../../../core/services/auth.service";
+import { DepartmentService } from "../../../core/services/department.service";
 
 @Component({
   selector: "app-circular-detail",
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: "./circular-detail.component.html",
   styleUrls: ["./circular-detail.component.css"],
 })
@@ -25,13 +27,25 @@ export class CircularDetailComponent implements OnInit {
   circular$: Observable<Circular | undefined>;
   relatedTasks$: Observable<any[]>;
   showMoreMenu = false;
-
+  selectedTask: Task | null = null;
+  showEditModal: boolean = false;
+  user: User | null = null;
+  currentUser$: Observable<User | null>;
+  departments$: Observable<any[]>;
+  ngOnInit(): void {
+    this.currentUser$.subscribe((user) => {
+      this.user = user;
+    });
+  }
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private circularService: CircularService,
-    private taskService: TaskService
+    private taskService: TaskService,
+    private authService: AuthService,
+    private departmentService: DepartmentService
   ) {
+    this.currentUser$ = this.authService.currentUser$;
     this.circular$ = this.route.params.pipe(
       switchMap((params) =>
         this.circularService
@@ -39,7 +53,9 @@ export class CircularDetailComponent implements OnInit {
           .pipe(map((response) => response.data))
       )
     );
-
+    this.departments$ = this.departmentService
+      .getDepartments()
+      .pipe(map((response) => response.data || []));
     this.relatedTasks$ = this.route.params.pipe(
       switchMap((params) =>
         this.taskService
@@ -53,12 +69,83 @@ export class CircularDetailComponent implements OnInit {
     );
   }
 
-  ngOnInit(): void {}
-
   editCircular() {
     this.route.params.subscribe((params) => {
       this.router.navigate(["/circulars", params["id"], "edit"]);
     });
+  }
+  goToTaskDetail(taskId: string) {
+    this.router.navigate(["/tasks", , taskId]);
+  }
+  onDepartmentChange(event: any) {
+    const selectedDepartment = event.target.value;
+  }
+  updateTask(taskId: string) {
+    this.relatedTasks$.subscribe((tasks) => {
+      const task = tasks.find((t) => t.id === taskId);
+      if (task) {
+        this.selectedTask = { ...task }; // clone the task to avoid two-way binding issues
+        this.showEditModal = true;
+      }
+    });
+  }
+
+  closeModal() {
+    this.showEditModal = false;
+    this.selectedTask = null;
+  }
+
+  saveTask() {
+    if (!this.selectedTask) return;
+
+    this.taskService
+      .updateTask(this.selectedTask.id, this.selectedTask)
+      .subscribe({
+        next: () => {
+          alert("Task updated successfully");
+          this.showEditModal = false;
+          this.selectedTask = null;
+
+          // Refresh the task list
+          this.relatedTasks$ = this.route.params.pipe(
+            switchMap((params) =>
+              this.taskService
+                .getTasks()
+                .pipe(
+                  map((response) =>
+                    response.data.filter(
+                      (task) => task.circularId === params["id"]
+                    )
+                  )
+                )
+            )
+          );
+        },
+        error: (err) => {
+          alert("Failed to update task");
+          console.error(err);
+        },
+      });
+  }
+
+  deleteTask(id: string) {
+    if (confirm("Are you sure you want to delete this task?")) {
+      this.taskService.deleteTask(id).subscribe(() => {
+        this.relatedTasks$ = this.route.params.pipe(
+          switchMap((params) =>
+            this.taskService
+              .getTasks()
+              .pipe(
+                map((response) =>
+                  response.data.filter(
+                    (task) => task.circularId === params["id"]
+                  )
+                )
+              )
+          )
+        );
+      });
+    }
   }
 
   toggleMoreMenu(event: Event) {
@@ -72,7 +159,6 @@ export class CircularDetailComponent implements OnInit {
     this.showMoreMenu = false;
     this.route.params.subscribe((params) => {
       console.log("Downloading PDF for circular:", params["id"]);
-      // Implement PDF download logic
       alert("PDF download started");
     });
   }
@@ -82,7 +168,6 @@ export class CircularDetailComponent implements OnInit {
     this.showMoreMenu = false;
     this.route.params.subscribe((params) => {
       console.log("Sharing circular:", params["id"]);
-      // Implement share logic
       if (navigator.share) {
         navigator.share({
           title: "Regulatory Circular",
@@ -90,7 +175,6 @@ export class CircularDetailComponent implements OnInit {
           url: window.location.href,
         });
       } else {
-        // Fallback - copy to clipboard
         navigator.clipboard.writeText(window.location.href);
         alert("Link copied to clipboard");
       }

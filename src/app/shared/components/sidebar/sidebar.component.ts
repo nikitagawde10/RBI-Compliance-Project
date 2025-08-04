@@ -2,8 +2,9 @@ import { Component } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { AuthService } from "../../../core/services/auth.service";
-import { UserRole } from "../../../core/models/user.model";
+import { User, UserRole } from "../../../core/models/user.model";
 import { map } from "rxjs/operators";
+import { Observable } from "rxjs";
 
 @Component({
   selector: "app-sidebar",
@@ -34,7 +35,12 @@ import { map } from "rxjs/operators";
             Tasks
           </a>
 
-          <a class="nav-link" routerLink="/reports" routerLinkActive="active">
+          <a
+            *ngIf="user?.role !== 'EMPLOYEE'"
+            class="nav-link"
+            routerLink="/reports"
+            routerLinkActive="active"
+          >
             <i class="fas fa-chart-bar me-3"></i>
             Reports
           </a>
@@ -114,9 +120,20 @@ import { map } from "rxjs/operators";
   ],
 })
 export class SidebarComponent {
+  user: User | null = null;
+  currentUser$: Observable<User | null>;
+
   isAdmin$ = this.authService.currentUser$.pipe(
     map((user) => user?.role === UserRole.SYSTEM_ADMIN)
   );
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) {
+    this.currentUser$ = this.authService.currentUser$;
+  }
+  ngOnInit(): void {
+    this.currentUser$.subscribe((user) => {
+      this.user = user;
+    });
+    console.log(this.user);
+  }
 }

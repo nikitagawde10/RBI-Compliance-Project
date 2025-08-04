@@ -207,48 +207,51 @@
       },
       "isActive": true,
       "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "5",
+      "email": "john.doe@compliance.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "role": "EMPLOYEE",
+      "department": {
+        "id": "2",
+        "name": "Compliance",
+        "code": "COMP"
+      },
+      "isActive": true,
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "6",
+      "email": "jane.smith@compliance.com",
+      "firstName": "Jane",
+      "lastName": "Smith",
+      "role": "DEPARTMENT_HEAD",
+      "department": {
+        "id": "1",
+        "name": "Administration",
+        "code": "ADMIN"
+      },
+      "isActive": true,
+      "createdAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "7",
+      "email": "mark.jones@compliance.com",
+      "firstName": "Mark",
+      "lastName": "Jones",
+      "role": "COMPLIANCE_OFFICER",
+      "department": {
+        "id": "4",
+        "name": "Operations",
+        "code": "OPS"
+      },
+      "isActive": true,
+      "createdAt": "2025-01-01T00:00:00Z"
     }
   ],
   "tasks": [
-    {
-      "id": "1",
-      "title": "Update Risk Assessment Procedures",
-      "description": "Review and update existing risk assessment procedures as per new RBI guidelines",
-      "circularId": "1",
-      "assignmentId": "1",
-      "assignedTo": {
-        "id": "4",
-        "name": "Employee User",
-        "role": "EMPLOYEE"
-      },
-      "assignedBy": {
-        "id": "3",
-        "name": "Department Head",
-        "role": "DEPARTMENT_HEAD"
-      },
-      "department": "Risk Management",
-      "priority": "HIGH",
-      "status": "IN_PROGRESS",
-      "progress": 60,
-      "dueDate": "2025-02-15T00:00:00Z",
-      "createdAt": "2025-01-16T00:00:00Z",
-      "updatedAt": "2025-01-18T00:00:00Z",
-      "estimatedHours": 16,
-      "actualHours": 10,
-      "tags": ["risk", "assessment", "procedures"],
-      "attachments": [],
-      "comments": [
-        {
-          "id": "1",
-          "taskId": "1",
-          "content": "Started working on the risk assessment procedures. Will need additional clarification on section 3.2.",
-          "authorId": "4",
-          "authorName": "Employee User",
-          "createdAt": "2025-01-17T10:30:00Z",
-          "isInternal": false
-        }
-      ]
-    },
     {
       "id": "2",
       "title": "Compliance Policy Review",
@@ -425,6 +428,42 @@
       "actualHours": 17,
       "tags": ["quarterly", "reports", "compliance"],
       "attachments": [],
+      "comments": []
+    },
+    {
+      "id": "1",
+      "title": "Update Risk Assessment Procedures",
+      "description": "Review and update existing risk assessment procedures as per new RBI guidelines",
+      "circularId": "1",
+      "assignmentId": "1",
+      "assignedTo": {
+        "id": "3",
+        "name": "John Doe",
+        "role": "DEPARTMENT_HEAD"
+      },
+      "assignedBy": {
+        "id": "2",
+        "name": "Jane Smith",
+        "role": "COMPLIANCE_OFFICER"
+      },
+      "department": "Risk Management",
+      "priority": "HIGH",
+      "status": "PENDING",
+      "dueDate": "2025-02-15T00:00:00Z",
+      "createdAt": "2025-01-15T00:00:00Z",
+      "updatedAt": "",
+      "estimatedHours": 16,
+      "tags": ["risk", "assessment", "procedures"],
+      "attachments": [
+        {
+          "id": "1",
+          "filename": "risk-framework-guidelines.pdf",
+          "url": "/attachments/risk-framework-guidelines.pdf",
+          "size": 2048576,
+          "type": "application/pdf",
+          "uploadedAt": "2025-01-15T00:00:00Z"
+        }
+      ],
       "comments": []
     }
   ],

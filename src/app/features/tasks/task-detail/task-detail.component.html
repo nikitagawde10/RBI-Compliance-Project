@@ -19,6 +19,9 @@
         <div class="d-flex align-items-start justify-content-between">
           <div>
             <h1 class="h2 mb-2 text-gradient">{{ task.title }}</h1>
+            <p *ngIf="circularName" class="text-muted mb-2">
+              For Circular: <strong>{{ circularName }}</strong>
+            </p>
             <p class="text-muted mb-3">{{ task.description }}</p>
             <div class="d-flex gap-2 flex-wrap">
               <span class="badge" [ngClass]="getStatusBadgeClass(task.status)">
@@ -45,13 +48,19 @@
             </div>
           </div>
           <div class="d-flex gap-2">
-            <button class="btn btn-outline-primary">
+            <button
+              class="btn btn-outline-primary"
+              (click)="updateTask(task.id)"
+            >
               <i class="fas fa-edit me-2"></i>
               Edit
             </button>
-            <button class="btn btn-outline-success">
+            <button
+              class="btn btn-outline-success"
+              (click)="markComplete(task)"
+            >
               <i class="fas fa-check me-2"></i>
-              Mark Complete
+              Approve Task
             </button>
           </div>
         </div>
@@ -59,7 +68,7 @@
     </div>
 
     <!-- Progress -->
-    <div class="row mb-4">
+    <div *ngIf="user?.role !== 'COMPLIANCE_OFFICER'" class="row mb-4">
       <div class="col-12">
         <div class="card">
           <div class="card-body">
@@ -251,7 +260,7 @@
       <!-- Sidebar -->
       <div class="col-lg-4">
         <!-- Quick Actions -->
-        <div class="detail-section">
+        <div *ngIf="user?.role !== 'COMPLIANCE_OFFICER'" class="detail-section">
           <div class="detail-section-header">
             <h5 class="mb-0">
               <i class="fas fa-bolt text-warning me-2"></i>
@@ -264,7 +273,7 @@
                 <i class="fas fa-edit me-2"></i>
                 Update Progress
               </button>
-              <button class="btn btn-success">
+              <button class="btn btn-success" (click)="markComplete(task)">
                 <i class="fas fa-check me-2"></i>
                 Mark Complete
               </button>
@@ -272,31 +281,10 @@
                 <i class="fas fa-paperclip me-2"></i>
                 Add Attachment
               </button>
-              <button class="btn btn-warning">
+              <!-- <button class="btn btn-warning">
                 <i class="fas fa-clock me-2"></i>
                 Log Time
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tags -->
-        <div class="detail-section" *ngIf="task.tags && task.tags.length > 0">
-          <div class="detail-section-header">
-            <h5 class="mb-0">
-              <i class="fas fa-tags text-primary me-2"></i>
-              Tags
-            </h5>
-          </div>
-          <div class="detail-section-body">
-            <div class="d-flex gap-2 flex-wrap">
-              <span
-                *ngFor="let tag of task.tags"
-                class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle"
-              >
-                <i class="fas fa-tag me-1"></i>
-                {{ tag }}
-              </span>
+              </button> -->
             </div>
           </div>
         </div>
@@ -334,6 +322,26 @@
             </div>
           </div>
         </div>
+        <!-- Tags -->
+        <div class="detail-section" *ngIf="task.tags && task.tags.length > 0">
+          <div class="detail-section-header">
+            <h5 class="mb-0">
+              <i class="fas fa-tags text-primary me-2"></i>
+              Tags
+            </h5>
+          </div>
+          <div class="detail-section-body">
+            <div class="d-flex gap-2 flex-wrap">
+              <span
+                *ngFor="let tag of task.tags"
+                class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle"
+              >
+                <i class="fas fa-tag me-1"></i>
+                {{ tag }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -344,5 +352,272 @@
       <span class="visually-hidden">Loading...</span>
     </div>
     <p class="text-muted mt-3">Loading task details...</p>
+  </div>
+</div>
+
+<!-- Enhanced Edit Task Modal -->
+<div
+  class="modal fade show"
+  tabindex="-1"
+  *ngIf="showEditModal"
+  style="display: block; z-index: 1050"
+>
+  <div class="modal-backdrop"></div>
+  <div
+    class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+  >
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title d-flex align-items-center">
+          <i class="fas fa-edit me-2"></i>
+          Edit Task
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          aria-label="Close"
+          (click)="closeModal()"
+        ></button>
+      </div>
+
+      <div class="modal-body p-4" *ngIf="selectedTask">
+        <form class="needs-validation" novalidate>
+          <!-- Title -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold text-secondary">
+              <i class="fas fa-heading me-2 text-primary"></i>
+              Task Title
+            </label>
+            <input
+              class="form-control form-control-lg"
+              [(ngModel)]="selectedTask.title"
+              name="title"
+              placeholder="Enter task title..."
+              required
+            />
+          </div>
+
+          <!-- Description -->
+          <div class="mb-4" *ngIf="selectedTask.description">
+            <label class="form-label fw-semibold text-secondary">
+              <i class="fas fa-align-left me-2 text-primary"></i>
+              Description
+            </label>
+            <textarea
+              class="form-control"
+              rows="3"
+              [(ngModel)]="selectedTask.description"
+              name="description"
+              placeholder="Enter task description..."
+            ></textarea>
+          </div>
+
+          <div class="row">
+            <!-- Assigned To -->
+            <div class="col-md-6 mb-4">
+              <label class="form-label fw-semibold text-secondary">
+                <i class="fas fa-user-tag me-2 text-primary"></i>
+                Assigned To
+              </label>
+              <div class="position-relative">
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="selectedTask.assignedTo.name"
+                  name="assignedTo"
+                  (input)="filterUsers()"
+                  [attr.autocomplete]="'off'"
+                  (focus)="showSuggestions = true"
+                  (blur)="hideSuggestions()"
+                  placeholder="Start typing name..."
+                />
+
+                <div
+                  *ngIf="showSuggestions && filteredUsers.length"
+                  class="suggestions-dropdown"
+                >
+                  <div
+                    *ngFor="let user of filteredUsers"
+                    class="suggestion-item"
+                    (mousedown)="selectUser(user)"
+                  >
+                    <div class="d-flex align-items-center">
+                      <div class="user-avatar me-2">
+                        {{ user.firstName?.charAt(0)
+                        }}{{ user.lastName?.charAt(0) }}
+                      </div>
+                      <div>
+                        <div class="fw-medium">
+                          {{ user.firstName }} {{ user.lastName }}
+                        </div>
+                        <small class="text-muted">{{ user.role }}</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Assigned By -->
+            <div class="col-md-6 mb-4">
+              <label class="form-label fw-semibold text-secondary">
+                <i class="fas fa-user-check me-2 text-primary"></i>
+                Assigned By
+              </label>
+              <input
+                class="form-control"
+                [(ngModel)]="selectedTask.assignedBy.name"
+                name="assignedBy"
+                readonly
+                style="background-color: #f8f9fa"
+              />
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- Priority -->
+            <div class="col-md-6 mb-4">
+              <label class="form-label fw-semibold text-secondary">
+                <i class="fas fa-flag me-2 text-primary"></i>
+                Priority
+              </label>
+              <select
+                class="form-select"
+                [(ngModel)]="selectedTask.priority"
+                name="priority"
+              >
+                <option value="LOW">🟢 Low</option>
+                <option value="MEDIUM">🟡 Medium</option>
+                <option value="HIGH">🟠 High</option>
+                <option value="CRITICAL">🔴 Critical</option>
+              </select>
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-6 mb-4" *ngIf="selectedTask.status">
+              <label class="form-label fw-semibold text-secondary">
+                <i class="fas fa-tasks me-2 text-primary"></i>
+                Status
+              </label>
+              <select
+                class="form-select"
+                [(ngModel)]="selectedTask.status"
+                name="status"
+              >
+                <option value="PENDING">Pending</option>
+                <option value="ACCEPTED">Accepted</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="UNDER_REVIEW">Under Review</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="OVERDUE">Overdue</option>
+                <option value="REJECTED">Rejected</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <!-- Department -->
+            <div class="col-md-6 mb-4">
+              <label class="form-label fw-semibold text-secondary">
+                <i class="fas fa-building me-2 text-primary"></i>
+                Department
+              </label>
+              <select
+                class="form-select"
+                [(ngModel)]="selectedTask.department"
+                name="department"
+              >
+                <option value="">Select Department</option>
+                <option
+                  *ngFor="let dept of departments$ | async"
+                  [value]="dept.name"
+                >
+                  {{ dept.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Progress -->
+            <div
+              class="col-md-6 mb-4"
+              *ngIf="selectedTask.progress !== undefined"
+            >
+              <label class="form-label fw-semibold text-secondary">
+                <i class="fas fa-chart-line me-2 text-primary"></i>
+                Progress ({{ selectedTask.progress }}%)
+              </label>
+              <input
+                type="range"
+                class="form-range"
+                min="0"
+                max="100"
+                [(ngModel)]="selectedTask.progress"
+                name="progress"
+              />
+            </div>
+          </div>
+
+          <!-- Due Date -->
+          <div class="row" *ngIf="selectedTask.dueDate">
+            <div class="col-md-6 mb-4">
+              <label class="form-label fw-semibold text-secondary">
+                <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                Due Date
+              </label>
+              <input
+                type="date"
+                class="form-control"
+                [value]="formatDateForInput(selectedTask.dueDate)"
+                (change)="updateDueDate($event)"
+                name="dueDate"
+              />
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer bg-light">
+        <button class="btn btn-outline-secondary" (click)="closeModal()">
+          <i class="fas fa-times me-2"></i>
+          Cancel
+        </button>
+        <button
+          class="btn btn-primary"
+          (click)="saveTask()"
+          [disabled]="isSaving"
+        >
+          <span
+            *ngIf="isSaving"
+            class="spinner-border spinner-border-sm me-2"
+            role="status"
+          ></span>
+          <i *ngIf="!isSaving" class="fas fa-save me-2"></i>
+          {{ isSaving ? "Saving..." : "Save Changes" }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success Toast -->
+<div
+  class="toast-container position-fixed top-0 end-0 p-3"
+  *ngIf="showSuccessToast"
+>
+  <div
+    class="toast show align-items-center text-bg-success border-0"
+    role="alert"
+  >
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="fas fa-check-circle me-2"></i>
+        Task updated successfully!
+      </div>
+      <button
+        type="button"
+        class="btn-close btn-close-white me-2 m-auto"
+        (click)="showSuccessToast = false"
+      ></button>
+    </div>
   </div>
 </div>
