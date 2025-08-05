@@ -1,7 +1,8 @@
 <div class="container-fluid p-4">
-  <div class="row mb-4">
+  <!-- Page header -->
+  <div class="row mb-4 align-items-center g-2">
     <div class="col">
-      <h1 class="h2 mb-2 text-gradient">Task Management</h1>
+      <h1 class="h2 mb-1 text-gradient">Task Management</h1>
       <p class="text-muted mb-0" *ngIf="currentUser$ | async as user">
         Track and manage compliance tasks efficiently
         <span class="badge bg-primary ms-2">{{
@@ -15,121 +16,167 @@
         </span>
       </p>
     </div>
+
     <div class="col-auto">
-      <div class="d-flex gap-2">
+      <div class="d-flex flex-wrap gap-2">
         <button
           class="btn btn-outline-secondary"
           *ngIf="hasActiveFilters()"
           (click)="clearFilters()"
-          title="Clear filters"
+          title="Clear all filters"
+          aria-label="Clear all filters"
         >
-          <i class="fas fa-times me-2"></i>
+          <i class="fas fa-times me-2" aria-hidden="true"></i>
           Clear Filters
         </button>
-        <button class="btn btn-outline-primary">
-          <i class="fas fa-filter me-2"></i>
-          Filter Tasks
-        </button>
+
         <a routerLink="/tasks/create" class="btn btn-primary">
-          <i class="fas fa-plus me-2"></i>
+          <i class="fas fa-plus me-2" aria-hidden="true"></i>
           Create Task
         </a>
       </div>
     </div>
   </div>
 
-  <!-- Task Stats -->
+  <!-- Quick Filters -->
+  <div class="card mb-3">
+    <div class="card-body d-flex flex-wrap align-items-center gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <label for="statusFilter" class="form-label mb-0 small text-muted"
+          >Status</label
+        >
+        <select
+          id="statusFilter"
+          class="form-select form-select-sm"
+          style="width: 14rem"
+          [(ngModel)]="selectedStatus"
+          (change)="onStatusChange($event)"
+        >
+          <option value="">All</option>
+          <option value="PENDING">Pending</option>
+          <option value="ACCEPTED">Accepted</option>
+          <option value="IN_PROGRESS">In Progress</option>
+          <option value="UNDER_REVIEW">Under Review</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="OVERDUE">Overdue</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <label for="priorityFilter" class="form-label mb-0 small text-muted"
+          >Priority</label
+        >
+        <select
+          id="priorityFilter"
+          class="form-select form-select-sm"
+          style="width: 12rem"
+          [(ngModel)]="selectedPriority"
+          (change)="onPriorityChange($event)"
+        >
+          <option value="">All</option>
+          <option value="LOW">Low</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="HIGH">High</option>
+          <option value="CRITICAL">Critical</option>
+        </select>
+      </div>
+
+      <div
+        class="ms-auto d-flex flex-wrap align-items-center gap-2"
+        *ngIf="hasActiveFilters()"
+      >
+        <small class="text-muted">Active:</small>
+        <span
+          class="badge bg-primary d-inline-flex align-items-center"
+          *ngIf="selectedStatus"
+        >
+          Status: {{ selectedStatus }}
+          <button
+            type="button"
+            class="btn-close btn-close-white ms-2"
+            style="font-size: 0.6rem"
+            (click)="clearStatusFilter()"
+            aria-label="Clear status filter"
+            title="Clear status filter"
+          ></button>
+        </span>
+        <span
+          class="badge bg-primary d-inline-flex align-items-center"
+          *ngIf="selectedPriority"
+        >
+          Priority: {{ selectedPriority }}
+          <button
+            type="button"
+            class="btn-close btn-close-white ms-2"
+            style="font-size: 0.6rem"
+            (click)="clearPriorityFilter()"
+            aria-label="Clear priority filter"
+            title="Clear priority filter"
+          ></button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats (optional: keep as-is if you already have an observable) -->
   <div class="row mb-4" *ngIf="taskStats$ | async as stats">
-    <div class="col-lg-3 col-md-6 mb-3">
+    <div
+      class="col-lg-3 col-md-6 mb-3"
+      *ngFor="
+        let card of [
+          {
+            icon: 'fa-inbox',
+            value: stats.pending,
+            label: 'Pending',
+            cls: 'text-secondary'
+          },
+          {
+            icon: 'fa-clock',
+            value: stats.inProgress,
+            label: 'In Progress',
+            cls: 'text-warning'
+          },
+          {
+            icon: 'fa-check-circle',
+            value: stats.completed,
+            label: 'Completed',
+            cls: 'text-success'
+          },
+          {
+            icon: 'fa-exclamation-triangle',
+            value: stats.overdue,
+            label: 'Overdue',
+            cls: 'text-danger'
+          }
+        ]
+      "
+    >
       <div class="stats-card">
         <div class="d-flex align-items-center">
-          <div class="icon-wrapper bg-secondary text-white me-3">
-            <i class="fas fa-inbox"></i>
+          <div
+            class="icon-wrapper me-3"
+            [ngClass]="card.cls.replace('text', 'bg') + ' text-white'"
+          >
+            <i class="fas" [ngClass]="card.icon"></i>
           </div>
           <div>
-            <h3 class="mb-0 fw-bold text-secondary">{{ stats.pending }}</h3>
-            <small class="text-muted text-uppercase fw-semibold">Pending</small>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-      <div class="stats-card warning">
-        <div class="d-flex align-items-center">
-          <div class="icon-wrapper bg-warning text-white me-3">
-            <i class="fas fa-clock"></i>
-          </div>
-          <div>
-            <h3 class="mb-0 fw-bold text-warning">{{ stats.inProgress }}</h3>
-            <small class="text-muted text-uppercase fw-semibold"
-              >In Progress</small
-            >
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-      <div class="stats-card success">
-        <div class="d-flex align-items-center">
-          <div class="icon-wrapper bg-success text-white me-3">
-            <i class="fas fa-check-circle"></i>
-          </div>
-          <div>
-            <h3 class="mb-0 fw-bold text-success">{{ stats.completed }}</h3>
-            <small class="text-muted text-uppercase fw-semibold"
-              >Completed</small
-            >
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-3 col-md-6 mb-3">
-      <div class="stats-card danger">
-        <div class="d-flex align-items-center">
-          <div class="icon-wrapper bg-danger text-white me-3">
-            <i class="fas fa-exclamation-triangle"></i>
-          </div>
-          <div>
-            <h3 class="mb-0 fw-bold text-danger">{{ stats.overdue }}</h3>
-            <small class="text-muted text-uppercase fw-semibold">Overdue</small>
+            <h3 class="mb-0 fw-bold" [ngClass]="card.cls">{{ card.value }}</h3>
+            <small class="text-muted text-uppercase fw-semibold">{{
+              card.label
+            }}</small>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Role Context Info -->
-  <div class="alert alert-info mb-4" *ngIf="currentUser$ | async as user">
-    <div class="d-flex align-items-center">
-      <i class="fas fa-info-circle me-3"></i>
-      <div>
-        <strong>Task View Context:</strong>
-        <ng-container [ngSwitch]="user.role">
-          <span *ngSwitchCase="'SYSTEM_ADMIN'">
-            You can see all tasks across all departments.
-          </span>
-          <span *ngSwitchCase="'COMPLIANCE_OFFICER'">
-            You can see tasks assigned to you, tasks you assigned, and tasks in
-            your department.
-          </span>
-          <span *ngSwitchCase="'DEPARTMENT_HEAD'">
-            You can see tasks assigned to you, tasks you assigned, and all tasks
-            in your department.
-          </span>
-          <span *ngSwitchCase="'EMPLOYEE'">
-            You can see tasks that are assigned to you.
-          </span>
-        </ng-container>
-      </div>
-    </div>
-  </div>
-
-  <!-- Tasks Table -->
+  <!-- Table Card -->
   <div class="card">
-    <div class="card-header">
+    <div class="card-header position-sticky top-0 bg-white z-1">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
-          <i class="fas fa-tasks text-primary me-2"></i>
+          <i class="fas fa-tasks text-primary me-2" aria-hidden="true"></i>
           My Tasks
           <span
             class="badge bg-light text-dark ms-2"
@@ -138,92 +185,38 @@
             {{ count }} tasks
           </span>
         </h5>
-        <div class="d-flex gap-2">
-          <select
-            class="form-select form-select-sm"
-            style="width: auto"
-            [(ngModel)]="selectedStatus"
-            (change)="onStatusChange($event)"
-          >
-            <option value="">All Status</option>
-            <option value="PENDING">Pending</option>
-            <option value="ACCEPTED">Accepted</option>
-            <option value="IN_PROGRESS">In Progress</option>
-            <option value="UNDER_REVIEW">Under Review</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="OVERDUE">Overdue</option>
-            <option value="REJECTED">Rejected</option>
-          </select>
-          <select
-            class="form-select form-select-sm"
-            style="width: auto"
-            [(ngModel)]="selectedPriority"
-            (change)="onPriorityChange($event)"
-          >
-            <option value="">All Priority</option>
-            <option value="LOW">Low</option>
-            <option value="MEDIUM">Medium</option>
-            <option value="HIGH">High</option>
-            <option value="CRITICAL">Critical</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Active Filters -->
-      <div class="mt-2" *ngIf="hasActiveFilters()">
-        <div class="d-flex flex-wrap gap-2 align-items-center">
-          <small class="text-muted">Active filters:</small>
-          <span class="badge bg-primary" *ngIf="selectedStatus">
-            Status: {{ selectedStatus }}
-            <button
-              type="button"
-              class="btn-close btn-close-white ms-1"
-              (click)="clearStatusFilter()"
-              style="font-size: 0.7em"
-            ></button>
-          </span>
-          <span class="badge bg-primary" *ngIf="selectedPriority">
-            Priority: {{ selectedPriority }}
-            <button
-              type="button"
-              class="btn-close btn-close-white ms-1"
-              (click)="clearPriorityFilter()"
-              style="font-size: 0.7em"
-            ></button>
-          </span>
-        </div>
       </div>
     </div>
-    <div class="card-body p-0">
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead>
+
+    <!-- Loading state -->
+    <div class="p-4" *ngIf="filteredTasks$ | async as tasks; else loading">
+      <div class="table-responsive" *ngIf="tasks.length; else empty">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
             <tr>
-              <th>Task Details</th>
-              <th>Assignment</th>
-              <th>Priority</th>
-              <th>Status</th>
-              <th>Progress</th>
-              <th>Due Date</th>
-              <th>Actions</th>
+              <th scope="col">Task</th>
+              <th scope="col">Assignment</th>
+              <th scope="col">Priority</th>
+              <th scope="col">Status</th>
+              <th scope="col">Progress</th>
+              <th scope="col">Due</th>
+              <th scope="col" class="text-end">Actions</th>
             </tr>
           </thead>
+
           <tbody>
-            <tr
-              *ngFor="
-                let task of filteredTasks$ | async;
-                trackBy: trackByTaskId
-              "
-            >
-              <td>
-                <div class="d-flex align-items-center">
+            <tr *ngFor="let task of tasks; trackBy: trackByTaskId">
+              <!-- Task -->
+              <td style="min-width: 280px">
+                <div class="d-flex align-items-start">
                   <div
-                    class="bg-primary-subtle text-primary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
+                    class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-3"
                     style="width: 40px; height: 40px"
+                    aria-hidden="true"
                   >
                     <i class="fas fa-file-alt"></i>
                   </div>
-                  <div>
+                  <div class="w-100">
                     <h6 class="mb-1 fw-semibold">
                       <a
                         [routerLink]="['/tasks', task.id]"
@@ -232,153 +225,199 @@
                         {{ task.title }}
                       </a>
                     </h6>
-                    <p class="text-muted mb-0 small">{{ task.description }}</p>
-                    <div class="d-flex gap-2 mt-1">
+                    <p
+                      class="text-muted small mb-1 text-truncate"
+                      style="max-width: 48ch"
+                    >
+                      {{ task.description }}
+                    </p>
+                    <div class="d-flex flex-wrap gap-2">
                       <span class="badge bg-light text-dark border small">
-                        <i class="fas fa-building me-1"></i>
-                        {{ task.department }}
+                        <i class="fas fa-building me-1" aria-hidden="true"></i
+                        >{{ task.department }}
                       </span>
                       <span class="badge bg-light text-dark border small">
-                        <i class="fas fa-clock me-1"></i>
-                        {{ task.estimatedHours }}h
+                        <i class="fas fa-clock me-1" aria-hidden="true"></i
+                        >{{ task.estimatedHours }}h
                       </span>
                     </div>
                   </div>
                 </div>
               </td>
-              <td>
-                <div>
-                  <div class="mb-1 d-flex flex-column">
-                    <small class="text-muted fw-medium">Assigned to:</small>
-                    <!-- <div class="fw-medium"></div> -->
-                    <span
-                      class="badge bg-info-subtle text-info-emphasis border border-info-subtle small"
-                    >
-                      {{ task.assignedTo.role }}
-                    </span>
+
+              <!-- Assignment -->
+              <td style="min-width: 220px">
+                <div class="d-flex flex-column gap-1">
+                  <div>
+                    <small class="text-muted">Assigned to</small>
+                    <div class="mt-1">
+                      <span
+                        class="badge bg-info-subtle text-info-emphasis border border-info-subtle"
+                      >
+                        {{ task.assignedTo.name }}
+                      </span>
+                    </div>
                   </div>
-                  <div class="mb-1 d-flex flex-column">
-                    <small class="text-muted fw-medium">Assigned by:</small>
-                    <!-- <div class="fw-medium small">
-                      {{ task.assignedBy.name }}
-                    </div> -->
-                    <span
-                      class="badge bg-primary-subtle text-info-emphasis border border-info-subtle small"
-                    >
-                      {{ task.assignedBy.role }}
-                    </span>
+                  <div>
+                    <small class="text-muted">By</small>
+                    <div class="mt-1">
+                      <span
+                        class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle"
+                      >
+                        {{ task.assignedBy.name }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </td>
+
+              <!-- Priority -->
               <td>
                 <span
                   class="badge"
                   [ngClass]="getPriorityBadgeClass(task.priority)"
                 >
-                  <i class="fas fa-flag me-1"></i>
-                  {{ task.priority }}
+                  <i class="fas fa-flag me-1" aria-hidden="true"></i
+                  >{{ task.priority }}
                 </span>
               </td>
+
+              <!-- Status -->
               <td>
                 <span
                   class="badge"
                   [ngClass]="getStatusBadgeClass(task.status)"
                 >
-                  <i class="fas fa-circle me-1" style="font-size: 0.5rem"></i>
-                  {{ task.status }}
+                  <i
+                    class="fas fa-circle me-1"
+                    style="font-size: 0.5rem"
+                    aria-hidden="true"
+                  ></i
+                  >{{ task.status }}
                 </span>
               </td>
-              <td>
-                <div style="min-width: 120px">
+
+              <!-- Progress -->
+              <td style="min-width: 140px">
+                <div
+                  class="d-flex justify-content-between small text-muted mb-1"
+                >
+                  <span>{{ task.progress }}%</span>
+                  <span>{{
+                    task.progress === 100 ? "Complete" : "In Progress"
+                  }}</span>
+                </div>
+                <div class="progress" style="height: 6px">
                   <div
-                    class="d-flex justify-content-between align-items-center mb-1"
-                  >
-                    <small class="text-muted">{{ task.progress }}%</small>
-                    <small class="text-muted">{{
-                      task.progress === 100 ? "Complete" : "In Progress"
-                    }}</small>
-                  </div>
-                  <div class="progress" style="height: 6px">
-                    <div
-                      class="progress-bar"
-                      [style.width.%]="task.progress"
-                      [ngClass]="getProgressBarClass(task.progress)"
-                    ></div>
-                  </div>
+                    class="progress-bar"
+                    [style.width.%]="task.progress"
+                    [ngClass]="getProgressBarClass(task.progress)"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    [attr.aria-valuenow]="task.progress"
+                    role="progressbar"
+                  ></div>
                 </div>
               </td>
+
+              <!-- Due -->
               <td>
-                <div>
-                  <div class="fw-medium">
-                    {{ task.dueDate | date : "dd MMM" }}
-                  </div>
-                  <small class="text-muted">{{
-                    task.dueDate | date : "yyyy"
-                  }}</small>
+                <div class="fw-medium">
+                  {{ task.dueDate | date : "dd MMM" }}
                 </div>
+                <small class="text-muted">{{
+                  task.dueDate | date : "yyyy"
+                }}</small>
               </td>
-              <td>
+
+              <!-- Actions -->
+              <td class="text-end">
                 <div
                   class="btn-group btn-group-sm"
+                  role="group"
                   *ngIf="currentUser$ | async as user"
                 >
                   <a
                     [routerLink]="['/tasks', task.id]"
                     class="btn btn-outline-primary"
-                    title="View Details"
+                    title="View details"
+                    aria-label="View details"
                   >
-                    <i class="fas fa-eye"></i>
+                    <i class="fas fa-eye" aria-hidden="true"></i>
                   </a>
+
                   <button
                     class="btn btn-outline-success"
-                    title="Update Progress"
+                    title="Update progress"
+                    aria-label="Update progress"
                     (click)="updateProgress(task.id)"
                     [disabled]="!canEditTask(task, user)"
                   >
-                    <i class="fas fa-edit"></i>
+                    <i class="fas fa-edit" aria-hidden="true"></i>
                   </button>
-                  <div class="dropdown">
+
+                  <!-- Approve shortcut when Pending -->
+                  <button
+                    *ngIf="task.status === 'PENDING'"
+                    class="btn btn-outline-success"
+                    title="Approve task"
+                    aria-label="Approve task"
+                    (click)="approveTask(task)"
+                    [disabled]="!canEditTask(task, user)"
+                  >
+                    <i class="fas fa-check" aria-hidden="true"></i>
+                  </button>
+
+                  <!-- More actions -->
+                  <div
+                    class="btn-group"
+                    dropdown
+                    *ngIf="task.status !== 'PENDING'"
+                  >
                     <button
                       class="btn btn-outline-secondary dropdown-toggle"
                       type="button"
                       data-bs-toggle="dropdown"
                       [disabled]="!canEditTask(task, user)"
+                      aria-expanded="false"
+                      aria-label="More actions"
+                      title="More actions"
                     >
-                      <i class="fas fa-ellipsis-h"></i>
+                      <i class="fas fa-ellipsis-h" aria-hidden="true"></i>
                     </button>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu dropdown-menu-end">
                       <li>
-                        <a
+                        <button
                           class="dropdown-item"
-                          href="#"
                           (click)="addComment(task.id)"
-                          ><i class="fas fa-comment me-2"></i>Add Comment</a
                         >
+                          <i class="fas fa-comment me-2"></i>Add comment
+                        </button>
                       </li>
                       <li>
-                        <a
+                        <button
                           class="dropdown-item"
-                          href="#"
                           (click)="attachFile(task.id)"
-                          ><i class="fas fa-paperclip me-2"></i>Attach File</a
                         >
+                          <i class="fas fa-paperclip me-2"></i>Attach file
+                        </button>
                       </li>
                       <li>
-                        <a
+                        <button
                           class="dropdown-item"
-                          href="#"
                           (click)="shareTask(task.id)"
-                          ><i class="fas fa-share me-2"></i>Share</a
                         >
+                          <i class="fas fa-share me-2"></i>Share
+                        </button>
                       </li>
                       <li><hr class="dropdown-divider" /></li>
                       <li>
-                        <a
+                        <button
                           class="dropdown-item text-danger"
-                          href="#"
                           (click)="deleteTask(task.id)"
-                          ><i class="fas fa-trash me-2"></i>Delete</a
                         >
+                          <i class="fas fa-trash me-2"></i>Delete
+                        </button>
                       </li>
                     </ul>
                   </div>
@@ -388,37 +427,51 @@
           </tbody>
         </table>
       </div>
-    </div>
-  </div>
 
-  <!-- Empty State -->
-  <div class="text-center py-5" *ngIf="(filteredTasks$ | async)?.length === 0">
-    <div class="p-5 bg-light rounded border-2 border-dashed">
-      <i class="fas fa-tasks fa-4x text-muted mb-3"></i>
-      <h4 class="text-muted" *ngIf="!hasActiveFilters()">No tasks found</h4>
-      <h4 class="text-muted" *ngIf="hasActiveFilters()">
-        No tasks match your filters
-      </h4>
-      <p class="text-muted" *ngIf="!hasActiveFilters()">
-        No tasks have been assigned to you yet
-      </p>
-      <p class="text-muted" *ngIf="hasActiveFilters()">
-        Try adjusting your filters to see more tasks
-      </p>
-      <div class="d-flex gap-2 justify-content-center">
-        <button
-          class="btn btn-outline-secondary"
-          *ngIf="hasActiveFilters()"
-          (click)="clearFilters()"
-        >
-          <i class="fas fa-times me-2"></i>
-          Clear Filters
-        </button>
-        <a routerLink="/tasks/create" class="btn btn-primary">
-          <i class="fas fa-plus me-2"></i>
-          Create Task
-        </a>
-      </div>
+      <!-- Empty state -->
+      <ng-template #empty>
+        <div class="text-center py-5">
+          <div class="p-5 bg-light rounded border-2 border-dashed">
+            <i
+              class="fas fa-tasks fa-3x text-muted mb-3"
+              aria-hidden="true"
+            ></i>
+            <h5 class="text-muted mb-1" *ngIf="!hasActiveFilters()">
+              No tasks found
+            </h5>
+            <h5 class="text-muted mb-1" *ngIf="hasActiveFilters()">
+              No tasks match your filters
+            </h5>
+            <p class="text-muted" *ngIf="!hasActiveFilters()">
+              No tasks have been assigned to you yet
+            </p>
+            <p class="text-muted" *ngIf="hasActiveFilters()">
+              Try adjusting your filters to see more tasks
+            </p>
+            <div class="d-flex gap-2 justify-content-center">
+              <button
+                *ngIf="hasActiveFilters()"
+                class="btn btn-outline-secondary"
+                (click)="clearFilters()"
+              >
+                <i class="fas fa-times me-2"></i>Clear Filters
+              </button>
+              <a routerLink="/tasks/create" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Create Task
+              </a>
+            </div>
+          </div>
+        </div>
+      </ng-template>
     </div>
+
+    <!-- Loading skeleton -->
+    <ng-template #loading>
+      <div class="p-4">
+        <div class="placeholder-glow" *ngFor="let r of [1, 2, 3, 4]">
+          <span class="placeholder col-12 mb-3" style="height: 56px"></span>
+        </div>
+      </div>
+    </ng-template>
   </div>
 </div>

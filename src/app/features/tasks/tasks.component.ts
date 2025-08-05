@@ -55,7 +55,16 @@ export class TasksComponent implements OnInit {
   filteredTasks$: Observable<Task[]>;
   taskStats$: Observable<TaskStats>;
   currentUser$: Observable<User | null>;
-
+  taskStatuses = [
+    "PENDING",
+    "ACCEPTED",
+    "IN_PROGRESS",
+    "UNDER_REVIEW",
+    "COMPLETED",
+    "OVERDUE",
+    "REJECTED",
+  ];
+  taskPriorities = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
   // Filter subjects
   private statusFilter$ = new BehaviorSubject<string>("");
   private priorityFilter$ = new BehaviorSubject<string>("");
@@ -153,7 +162,9 @@ export class TasksComponent implements OnInit {
         return [];
     }
   }
-
+  approveTask(task: Task) {
+    console.log("Approving task:", { task });
+  }
   // Apply UI filters (status, priority)
   private applyUIFilters(
     tasks: Task[],

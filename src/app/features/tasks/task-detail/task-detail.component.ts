@@ -8,7 +8,6 @@ import { switchMap, map, takeUntil, tap, finalize } from "rxjs/operators";
 import { User } from "../../../core/models/user.model";
 import { AuthService } from "../../../core/services/auth.service";
 import { CircularService } from "../../../core/services/circular.service";
-import { Circular } from "../../../core/models/circular.model";
 import { DepartmentService } from "../../../core/services/department.service";
 import { FormsModule } from "@angular/forms";
 import { UserService } from "../../../core/services/user.service";
@@ -25,7 +24,6 @@ export class TaskDetailComponent implements OnInit, OnDestroy {
   private taskSubject = new BehaviorSubject<Task | null>(null);
 
   task$: Observable<Task | null> = this.taskSubject.asObservable();
-  // circular$: Observable<Circular | undefined>;
   departments$: Observable<any[]>;
   currentUser$: Observable<User | null>;
 
