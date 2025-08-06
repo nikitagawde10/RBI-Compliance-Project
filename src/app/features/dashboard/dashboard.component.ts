@@ -22,14 +22,14 @@ export class DashboardComponent implements OnInit {
   taskStats$: Observable<TaskStats>;
   recentActivities$: Observable<any[]>;
   showQuickActions = false;
-
+  user: User | null = null;
   constructor(
     private authService: AuthService,
     private taskService: TaskService,
-    private circularService: CircularService,
     private notificationService: NotificationService
   ) {
     this.currentUser$ = this.authService.currentUser$;
+
     this.taskStats$ = this.taskService
       .getTaskStats()
       .pipe(map((response) => response.data));
@@ -38,7 +38,11 @@ export class DashboardComponent implements OnInit {
       .pipe(map((response) => response.data || []));
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.currentUser$.subscribe((user) => {
+      this.user = user;
+    });
+  }
 
   toggleQuickActions(event: Event) {
     event.preventDefault();

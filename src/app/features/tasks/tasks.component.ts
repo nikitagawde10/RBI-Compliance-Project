@@ -137,8 +137,8 @@ export class TasksComponent implements OnInit {
         // 3. Tasks in their department
         return tasks.filter(
           (task) =>
-            task.assignedTo.id === user.id ||
-            task.assignedBy.id === user.id ||
+            (task.assignedTo && task.assignedTo?.id === user.id) ||
+            task.assignedBy?.id === user.id ||
             task.department === user.department?.name
         );
 
@@ -149,14 +149,14 @@ export class TasksComponent implements OnInit {
         // 3. All tasks in their department
         return tasks.filter(
           (task) =>
-            task.assignedTo.id === user.id ||
-            task.assignedBy.id === user.id ||
+            (task.assignedTo && task.assignedTo?.id === user.id) ||
+            task.assignedBy?.id === user.id ||
             task.department === user.department?.name
         );
 
       case UserRole.EMPLOYEE:
         // Employees can only see tasks assigned to them
-        return tasks.filter((task) => task.assignedTo.id === user.id);
+        return tasks.filter((task) => task.assignedTo?.id === user.id);
 
       default:
         return [];
@@ -297,10 +297,10 @@ export class TasksComponent implements OnInit {
     if (user.role === UserRole.SYSTEM_ADMIN) return true;
 
     // Users can edit tasks assigned to them
-    if (task.assignedTo.id === user.id) return true;
+    if (task.assignedTo?.id === user.id) return true;
 
     // Users can edit tasks they assigned
-    if (task.assignedBy.id === user.id) return true;
+    if (task.assignedBy?.id === user.id) return true;
 
     // Department heads and compliance officers can edit tasks in their department
     if (
@@ -344,6 +344,6 @@ export class TasksComponent implements OnInit {
 
   // TrackBy function for better performance
   trackByTaskId(index: number, task: Task): string {
-    return task.id;
+    return task?.id ?? index.toString();
   }
 }

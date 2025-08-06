@@ -23,7 +23,7 @@
             Quick Action
           </button>
           <ul class="custom-dropdown-menu" [class.show]="showQuickActions">
-            <li>
+            <li *ngIf="user?.role === 'COMPLIANCE_OFFICER'">
               <a class="dropdown-item" routerLink="/circulars/upload"
                 ><i class="fas fa-upload me-2"></i>Upload Circular</a
               >
@@ -33,7 +33,7 @@
                 ><i class="fas fa-plus me-2"></i>Create Task</a
               >
             </li>
-            <li>
+            <li *ngIf="user?.role !== 'EMPLOYEE'">
               <a class="dropdown-item" routerLink="/reports"
                 ><i class="fas fa-chart-bar me-2"></i>Generate Report</a
               >
@@ -174,7 +174,7 @@
       </div>
     </div>
 
-    <div class="col-lg-4">
+    <div class="col-lg-4" *ngIf="user?.role !== 'EMPLOYEE'">
       <div class="card mb-4">
         <div class="card-header">
           <h5 class="mb-0">

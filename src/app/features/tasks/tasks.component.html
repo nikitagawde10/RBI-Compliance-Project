@@ -254,7 +254,7 @@
                       <span
                         class="badge bg-info-subtle text-info-emphasis border border-info-subtle"
                       >
-                        {{ task.assignedTo.name }}
+                        {{ task.assignedTo?.name || "Unassigned" }}
                       </span>
                     </div>
                   </div>
@@ -264,7 +264,7 @@
                       <span
                         class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle"
                       >
-                        {{ task.assignedBy.name }}
+                        {{ task.assignedBy?.name }}
                       </span>
                     </div>
                   </div>

@@ -10,6 +10,8 @@ import {
 import { Observable, BehaviorSubject, combineLatest } from "rxjs";
 import { map, startWith } from "rxjs/operators";
 import { FormsModule } from "@angular/forms";
+import { User } from "../../core/models/user.model";
+import { AuthService } from "../../core/services/auth.service";
 
 interface FilterOptions {
   regulatoryBody: string;
@@ -35,7 +37,8 @@ interface FilterOptions {
 export class CircularsComponent implements OnInit {
   circulars$: Observable<Circular[]>;
   filteredCirculars$: Observable<Circular[]>;
-
+  currentUser$!: Observable<User | null>;
+  user: User | null = null;
   // Filter subjects
   private regulatoryBodyFilter$ = new BehaviorSubject<string>("");
   private statusFilter$ = new BehaviorSubject<string>("");
@@ -48,7 +51,11 @@ export class CircularsComponent implements OnInit {
   selectedPriority: string = "";
   searchTerm: string = "";
 
-  constructor(private circularService: CircularService) {
+  constructor(
+    private circularService: CircularService,
+    private authService: AuthService
+  ) {
+    this.currentUser$ = this.authService.currentUser$;
     // Get all circulars
     this.circulars$ = this.circularService
       .getCirculars()
@@ -73,7 +80,11 @@ export class CircularsComponent implements OnInit {
     );
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.currentUser$.subscribe((user) => {
+      this.user = user;
+    });
+  }
 
   // Apply all filters to the circulars array
   private applyFilters(
