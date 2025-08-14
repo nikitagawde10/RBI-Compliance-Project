@@ -129,55 +129,6 @@
       "attachments": [],
       "createdAt": "2025-01-20T00:00:00Z",
       "updatedAt": "2025-01-21T00:00:00Z"
-    },
-    {
-      "id": "3",
-      "referenceNumber": "IRDAI/2025/003",
-      "title": "Cybersecurity Measures for Insurers",
-      "description": "Mandatory cybersecurity protocols for insurance companies",
-      "content": "Adopt MFA, regular penetration testing, and employee security training...",
-      "regulatoryBody": "IRDAI",
-      "category": "Cybersecurity",
-      "priority": "HIGH",
-      "issuedDate": "2025-02-05T00:00:00Z",
-      "effectiveDate": "2025-04-01T00:00:00Z",
-      "status": "RECEIVED",
-      "attachments": [
-        {
-          "id": "att-2",
-          "filename": "irdai-cyber-guidelines.pdf",
-          "url": "/attachments/irdai-cyber-guidelines.pdf",
-          "size": 1024000,
-          "type": "application/pdf",
-          "uploadedAt": "2025-02-05T00:00:00Z"
-        }
-      ],
-      "aiAnalysis": {
-        "id": "ai-3",
-        "confidence": 0.95,
-        "suggestedDepartments": ["IT Security", "Compliance", "Training"],
-        "extractedActions": [
-          {
-            "id": "action-4",
-            "description": "Initiate cybersecurity awareness training for all employees",
-            "priority": "HIGH",
-            "estimatedHours": 10,
-            "dueDate": "2025-04-10T00:00:00Z"
-          },
-          {
-            "id": "action-5",
-            "description": "Schedule penetration testing with third-party vendor",
-            "priority": "HIGH",
-            "estimatedHours": 20,
-            "dueDate": "2025-04-15T00:00:00Z"
-          }
-        ],
-        "priorityAssessment": "HIGH",
-        "processingTime": 4.1,
-        "status": "COMPLETED"
-      },
-      "createdAt": "2025-02-05T00:00:00Z",
-      "updatedAt": "2025-02-06T00:00:00Z"
     }
   ],
   "users": [

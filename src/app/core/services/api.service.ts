@@ -186,71 +186,6 @@ export class ApiService {
       pagination: this.getPaginationInfo(params, responseData),
     } as ApiResponse<T>);
   }
-
-  private handleUsersEndpoint(
-    method: string,
-    id?: string,
-    action?: string,
-    data?: any,
-    params?: FilterParams
-  ): any {
-    const users = this.mockData.users || [];
-
-    switch (method) {
-      case "GET":
-        if (id) {
-          return users.find((u: any) => u.id === id);
-        }
-        return this.applyFilters(users, params);
-      case "POST":
-        const newUser = {
-          id: this.generateId(),
-          ...data,
-          createdAt: new Date().toISOString(),
-          isActive: true,
-        };
-        return newUser;
-      case "PUT":
-        return { id, ...data, updatedAt: new Date().toISOString() };
-      case "DELETE":
-        return { id, deleted: true };
-      default:
-        throw new Error(`Method ${method} not supported for users`);
-    }
-  }
-
-  private handleDepartmentsEndpoint(
-    method: string,
-    id?: string,
-    action?: string,
-    data?: any,
-    params?: FilterParams
-  ): any {
-    const departments = this.mockData.departments || [];
-
-    switch (method) {
-      case "GET":
-        if (id) {
-          return departments.find((d: any) => d.id === id);
-        }
-        return this.applyFilters(departments, params);
-      case "POST":
-        const newDepartment = {
-          id: this.generateId(),
-          ...data,
-          createdAt: new Date().toISOString(),
-          memberCount: 0,
-        };
-        return newDepartment;
-      case "PUT":
-        return { id, ...data, updatedAt: new Date().toISOString() };
-      case "DELETE":
-        return { id, deleted: true };
-      default:
-        throw new Error(`Method ${method} not supported for departments`);
-    }
-  }
-
   private handleCircularsEndpoint(
     method: string,
     id?: string,
@@ -258,33 +193,87 @@ export class ApiService {
     data?: any,
     params?: FilterParams
   ): any {
-    const circulars = this.mockData.circulars || [];
+    // Ensure in-memory array exists
+    const circulars = (this.mockData.circulars = this.mockData.circulars || []);
 
     switch (method) {
-      case "GET":
+      case "GET": {
         if (id) {
           if (action === "ai-analysis") {
-            return this.mockData.aiAnalysis || {};
+            const circ = circulars.find((c: any) => c.id === id);
+            if (!circ) throw new Error("Circular not found");
+            // Return the AI analysis for THIS circular (was incorrectly reading a root key before)
+            return circ.aiAnalysis || {};
           }
-          return circulars.find((c: any) => c.id === id);
+          const circ = circulars.find((c: any) => c.id === id);
+          if (!circ) throw new Error("Circular not found");
+          return circ;
         }
         return this.applyFilters(circulars, params);
-      case "POST":
-        if (action === "ai-process") {
+      }
+
+      case "POST": {
+        if (id && action === "ai-process") {
+          // Simulate kicking off an AI processing job for this circular
+          const circ = circulars.find((c: any) => c.id === id);
+          if (!circ) throw new Error("Circular not found for AI processing");
+          circ.updatedAt = new Date().toISOString();
+          circ.status = "PROCESSING";
           return { processingId: this.generateId(), status: "PROCESSING" };
         }
+
+        if (id && action === "assign") {
+          // Simulate assignment update on a circular
+          const circIndex = circulars.findIndex((c: any) => c.id === id);
+          if (circIndex === -1)
+            throw new Error("Circular not found for assignment");
+          const circ = circulars[circIndex];
+          const assignments = Array.isArray(data?.assignments)
+            ? data.assignments
+            : [];
+          const updated = {
+            ...circ,
+            assignments,
+            updatedAt: new Date().toISOString(),
+            status: circ.status ?? "ASSIGNED",
+          };
+          circulars[circIndex] = updated;
+          return { id, assignmentsUpdated: assignments.length };
+        }
+
+        // Create a new circular and persist it to in-memory store
         const newCircular = {
           id: this.generateId(),
           ...data,
-          status: "RECEIVED",
+          status: data?.status ?? "RECEIVED",
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
+        circulars.push(newCircular); // <-- persist so subsequent GET /circulars/:id works
         return newCircular;
-      case "PUT":
-        return { id, ...data, updatedAt: new Date().toISOString() };
-      case "DELETE":
+      }
+
+      case "PUT": {
+        if (!id) throw new Error("Circular id is required");
+        const idx = circulars.findIndex((c: any) => c.id === id);
+        if (idx === -1) throw new Error("Circular not found");
+        const updated = {
+          ...circulars[idx],
+          ...data,
+          updatedAt: new Date().toISOString(),
+        };
+        circulars[idx] = updated;
+        return updated;
+      }
+
+      case "DELETE": {
+        if (!id) throw new Error("Circular id is required");
+        const idx = circulars.findIndex((c: any) => c.id === id);
+        if (idx === -1) return { id, deleted: false };
+        circulars.splice(idx, 1);
         return { id, deleted: true };
+      }
+
       default:
         throw new Error(`Method ${method} not supported for circulars`);
     }
@@ -297,10 +286,10 @@ export class ApiService {
     data?: any,
     params?: FilterParams
   ): any {
-    const tasks = this.mockData.tasks || [];
+    const tasks = (this.mockData.tasks = this.mockData.tasks || []);
 
     switch (method) {
-      case "GET":
+      case "GET": {
         if (id) {
           if (action === "comments") {
             return (
@@ -318,14 +307,18 @@ export class ApiService {
           if (action === "stats") {
             return this.mockData.taskStats || {};
           }
-          return tasks.find((t: any) => t.id === id);
+          const t = tasks.find((task: any) => task.id === id);
+          if (!t) throw new Error("Task not found");
+          return t;
         }
         if (action === "stats") {
           return this.mockData.taskStats || {};
         }
         return this.applyFilters(tasks, params);
-      case "POST":
-        if (action === "comments") {
+      }
+
+      case "POST": {
+        if (action === "comments" && id) {
           const newComment = {
             id: this.generateId(),
             taskId: id,
@@ -334,24 +327,161 @@ export class ApiService {
             authorName: "Current User",
             createdAt: new Date().toISOString(),
           };
+          this.mockData.taskComments = this.mockData.taskComments || [];
+          this.mockData.taskComments.push(newComment);
           return newComment;
         }
+
         const newTask = {
           id: this.generateId(),
           ...data,
-          status: "PENDING",
-          progress: 0,
+          status: data?.status ?? "PENDING",
+          progress: data?.progress ?? 0,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
-          assignedBy: "current-user-id",
         };
+        tasks.push(newTask); // persist
         return newTask;
-      case "PUT":
-        return { id, ...data, updatedAt: new Date().toISOString() };
-      case "DELETE":
+      }
+
+      case "PUT": {
+        if (!id) throw new Error("Task id is required");
+        const idx = tasks.findIndex((t: any) => t.id === id);
+        if (idx === -1) throw new Error("Task not found");
+        const updated = {
+          ...tasks[idx],
+          ...data,
+          updatedAt: new Date().toISOString(),
+        };
+        tasks[idx] = updated;
+        return updated;
+      }
+
+      case "DELETE": {
+        if (!id) throw new Error("Task id is required");
+        const idx = tasks.findIndex((t: any) => t.id === id);
+        if (idx === -1) return { id, deleted: false };
+        tasks.splice(idx, 1);
         return { id, deleted: true };
+      }
+
       default:
         throw new Error(`Method ${method} not supported for tasks`);
+    }
+  }
+
+  private handleUsersEndpoint(
+    method: string,
+    id?: string,
+    action?: string,
+    data?: any,
+    params?: FilterParams
+  ): any {
+    const users = (this.mockData.users = this.mockData.users || []);
+
+    switch (method) {
+      case "GET": {
+        if (id) {
+          const user = users.find((u: any) => u.id === id);
+          if (!user) throw new Error("User not found");
+          return user;
+        }
+        return this.applyFilters(users, params);
+      }
+
+      case "POST": {
+        const newUser = {
+          id: this.generateId(),
+          ...data,
+          createdAt: new Date().toISOString(),
+          isActive: true,
+        };
+        this.mockData.users = this.mockData.users || [];
+        this.mockData.users.push(newUser);
+        return newUser;
+      }
+
+      case "PUT": {
+        if (!id) throw new Error("User id is required");
+        const idx = users.findIndex((u: any) => u.id === id);
+        if (idx === -1) throw new Error("User not found");
+        const updated = {
+          ...users[idx],
+          ...data,
+          updatedAt: new Date().toISOString(),
+        };
+        users[idx] = updated;
+        return updated;
+      }
+
+      case "DELETE": {
+        if (!id) throw new Error("User id is required");
+        const idx = users.findIndex((u: any) => u.id === id);
+        if (idx === -1) return { id, deleted: false };
+        users.splice(idx, 1);
+        return { id, deleted: true };
+      }
+
+      default:
+        throw new Error(`Method ${method} not supported for users`);
+    }
+  }
+
+  private handleDepartmentsEndpoint(
+    method: string,
+    id?: string,
+    action?: string,
+    data?: any,
+    params?: FilterParams
+  ): any {
+    const departments = (this.mockData.departments =
+      this.mockData.departments || []);
+
+    switch (method) {
+      case "GET": {
+        if (id) {
+          const dept = departments.find((d: any) => d.id === id);
+          if (!dept) throw new Error("Department not found");
+          return dept;
+        }
+        return this.applyFilters(departments, params);
+      }
+
+      case "POST": {
+        const newDepartment = {
+          id: this.generateId(),
+          ...data,
+          createdAt: new Date().toISOString(),
+          memberCount: 0,
+        };
+        this.mockData.departments = this.mockData.departments || [];
+        this.mockData.departments.push(newDepartment);
+        return newDepartment;
+      }
+
+      case "PUT": {
+        if (!id) throw new Error("Department id is required");
+        const idx = departments.findIndex((d: any) => d.id === id);
+        if (idx === -1) throw new Error("Department not found");
+        const updated = {
+          ...departments[idx],
+          ...data,
+          updatedAt: new Date().toISOString(),
+        };
+        departments[idx] = updated;
+        return updated;
+      }
+
+      case "DELETE": {
+        if (!id) throw new Error("Department id is required");
+        const idx = departments.findIndex((d: any) => d.id === id);
+        if (idx === -1) return { id, deleted: false };
+        departments.splice(idx, 1);
+        return { id, deleted: true };
+      }
+
+      default:
+        throw new Error(`Method ${method} not supported for departments`);
     }
   }
 
