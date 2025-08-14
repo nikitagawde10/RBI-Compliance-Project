@@ -70,14 +70,14 @@ export interface UpdateTaskRequest {
 
 export interface CreateCircularRequest {
   referenceNumber: string;
+  regulatoryBody: string;
   title: string;
   description: string;
-  content: string;
-  regulatoryBody: string;
   category: string;
   priority: string;
   issuedDate: string;
   effectiveDate: string;
+  content: string;
   attachments?: File[];
 }
 

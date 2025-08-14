@@ -3,3 +3,75 @@
   max-width: 100%;
   overflow-x: hidden;
 }
+/* Make the whole card scroll, so the header can stick inside it */
+.scroll-card {
+  max-height: 500px; /* adjust as needed */
+  overflow: auto; /* scrolling happens here */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Pin the header to the top of the scroller */
+.scroll-card .card-header {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background-color: #fff; /* ensure it’s not transparent while sticking */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Let body take remaining height inside the flex card */
+.scroll-card .card-body {
+  flex: 1 1 auto;
+}
+
+/* (Optional) if your grid columns are flex parents, this helps nested scrolls */
+.ai-scroll-col {
+  min-height: 0;
+}
+/* Sticky header + scrollable body */
+.scroll-card {
+  height: 500px;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Keep header fixed while body scrolls */
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff; /* Ensure text is readable when it sticks */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.scroll-body {
+  overflow-y: auto;
+  padding-right: 8px; /* space for scrollbar */
+}
+
+/* Typography helpers for rendered HTML */
+.prose p {
+  margin: 0 0 0.75rem 0;
+}
+
+.prose ul {
+  padding-left: 1.2rem;
+  margin: 0 0 0.75rem 0;
+}
+
+.prose li {
+  margin: 0.25rem 0;
+}
+
+.prose .section-title {
+  font-weight: 700;
+}
+
+/* Optional: subtle code fence for pre->paragraph conversions */
+.prose hr {
+  border: 0;
+  border-top: 1px solid #e9ecef;
+  margin: 1rem 0;
+}

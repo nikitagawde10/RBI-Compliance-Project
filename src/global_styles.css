@@ -107,8 +107,8 @@ body {
 }
 
 .card {
-  border: none;
-  border-radius: 0.75rem;
+  /* border: none;
+  border-radius: 0.75rem; */
   box-shadow: var(--shadow);
   transition: all 0.15s ease-in-out;
 }

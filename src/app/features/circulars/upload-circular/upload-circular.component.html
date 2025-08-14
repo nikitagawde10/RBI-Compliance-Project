@@ -1,54 +1,75 @@
-<div class="upload-container">
+<!-- features/circulars/upload-circular/upload-circular.component.html -->
+<div class="container py-4">
   <!-- Breadcrumb -->
   <nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
         <a routerLink="/circulars">
-          <i class="fas fa-file-alt me-1"></i>
-          Circulars
+          <i class="fas fa-file-alt me-1"></i> Circulars
         </a>
       </li>
       <li class="breadcrumb-item active">Upload New Circular</li>
     </ol>
   </nav>
 
+  <!-- Error -->
+  @if (uploadError) {
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>{{ uploadError }}
+    <button
+      type="button"
+      class="btn-close"
+      (click)="uploadError = null"
+      aria-label="Close"
+    ></button>
+  </div>
+  }
+
+  <!-- Angular-driven tabs -->
+  <ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'manual'"
+        (click)="setTab('manual')"
+      >
+        Manual
+      </button>
+    </li>
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'ai'"
+        (click)="setTab('ai')"
+      >
+        AI Extract
+      </button>
+    </li>
+  </ul>
+
+  <!-- MANUAL TAB -->
+  @if (activeTab === 'manual') {
   <div class="row">
+    <!-- Left: form -->
     <div class="col-lg-8">
       <div class="card">
         <div class="card-header">
           <h5 class="mb-0">
-            <i class="fas fa-upload text-primary me-2"></i>
-            Upload New Circular
+            <i class="fas fa-upload text-primary me-2"></i> Upload New Circular
           </h5>
         </div>
-        <div class="card-body">
-          <!-- Error Alert -->
-          @if (uploadError) {
-          <div
-            class="alert alert-danger alert-dismissible fade show"
-            role="alert"
-          >
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            {{ uploadError }}
-            <button
-              type="button"
-              class="btn-close"
-              aria-label="Close"
-              (click)="uploadError = null"
-            ></button>
-          </div>
-          }
 
-          <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()">
+        <div class="card-body">
+          <form [formGroup]="uploadForm" (ngSubmit)="onSubmitManual()">
             <div class="row g-4">
               <div class="col-md-6">
-                <label for="referenceNumber" class="form-label fw-semibold"
+                <label class="form-label fw-semibold" for="referenceNumber"
                   >Reference Number *</label
                 >
                 <input
+                  id="referenceNumber"
                   type="text"
                   class="form-control"
-                  id="referenceNumber"
                   formControlName="referenceNumber"
                   placeholder="e.g., RBI/2025/001"
                   [class.is-invalid]="
@@ -60,12 +81,12 @@
               </div>
 
               <div class="col-md-6">
-                <label for="regulatoryBody" class="form-label fw-semibold"
+                <label class="form-label fw-semibold" for="regulatoryBody"
                   >Regulatory Body *</label
                 >
                 <select
-                  class="form-select"
                   id="regulatoryBody"
+                  class="form-select"
                   formControlName="regulatoryBody"
                   [class.is-invalid]="
                     uploadForm.get('regulatoryBody')?.invalid &&
@@ -93,13 +114,13 @@
               </div>
 
               <div class="col-12">
-                <label for="title" class="form-label fw-semibold"
+                <label class="form-label fw-semibold" for="title"
                   >Title *</label
                 >
                 <input
+                  id="title"
                   type="text"
                   class="form-control"
-                  id="title"
                   formControlName="title"
                   placeholder="Enter circular title"
                   [class.is-invalid]="
@@ -111,12 +132,12 @@
               </div>
 
               <div class="col-12">
-                <label for="description" class="form-label fw-semibold"
+                <label class="form-label fw-semibold" for="description"
                   >Description *</label
                 >
                 <textarea
-                  class="form-control"
                   id="description"
+                  class="form-control"
                   rows="3"
                   formControlName="description"
                   placeholder="Brief description of the circular"
@@ -129,12 +150,12 @@
               </div>
 
               <div class="col-md-6">
-                <label for="category" class="form-label fw-semibold"
+                <label class="form-label fw-semibold" for="category"
                   >Category *</label
                 >
                 <select
-                  class="form-select"
                   id="category"
+                  class="form-select"
                   formControlName="category"
                   [class.is-invalid]="
                     uploadForm.get('category')?.invalid &&
@@ -142,25 +163,23 @@
                   "
                 >
                   <option value="">Select Category</option>
-                  <option value="Risk Management">Risk Management</option>
-                  <option value="Compliance">Compliance</option>
-                  <option value="Operations">Operations</option>
-                  <option value="Technology">Technology</option>
-                  <option value="Governance">Governance</option>
-                  <option value="Customer Protection">
-                    Customer Protection
-                  </option>
+                  <option>Risk Management</option>
+                  <option>Compliance</option>
+                  <option>Operations</option>
+                  <option>Technology</option>
+                  <option>Governance</option>
+                  <option>Customer Protection</option>
                 </select>
                 <div class="invalid-feedback">Please select a category</div>
               </div>
 
               <div class="col-md-6">
-                <label for="priority" class="form-label fw-semibold"
+                <label class="form-label fw-semibold" for="priority"
                   >Priority *</label
                 >
                 <select
-                  class="form-select"
                   id="priority"
+                  class="form-select"
                   formControlName="priority"
                   [class.is-invalid]="
                     uploadForm.get('priority')?.invalid &&
@@ -177,13 +196,13 @@
               </div>
 
               <div class="col-md-6">
-                <label for="issuedDate" class="form-label fw-semibold"
+                <label class="form-label fw-semibold" for="issuedDate"
                   >Issued Date *</label
                 >
                 <input
+                  id="issuedDate"
                   type="date"
                   class="form-control"
-                  id="issuedDate"
                   formControlName="issuedDate"
                   [class.is-invalid]="
                     uploadForm.get('issuedDate')?.invalid &&
@@ -194,13 +213,13 @@
               </div>
 
               <div class="col-md-6">
-                <label for="effectiveDate" class="form-label fw-semibold"
+                <label class="form-label fw-semibold" for="effectiveDate"
                   >Effective Date *</label
                 >
                 <input
+                  id="effectiveDate"
                   type="date"
                   class="form-control"
-                  id="effectiveDate"
                   formControlName="effectiveDate"
                   [class.is-invalid]="
                     uploadForm.get('effectiveDate')?.invalid &&
@@ -211,12 +230,12 @@
               </div>
 
               <div class="col-12">
-                <label for="content" class="form-label fw-semibold"
+                <label class="form-label fw-semibold" for="content"
                   >Content *</label
                 >
                 <textarea
-                  class="form-control"
                   id="content"
+                  class="form-control"
                   rows="8"
                   formControlName="content"
                   placeholder="Full content of the circular"
@@ -229,13 +248,13 @@
               </div>
 
               <div class="col-12">
-                <label for="attachments" class="form-label fw-semibold"
+                <label class="form-label fw-semibold" for="attachments"
                   >Attachments</label
                 >
                 <input
+                  id="attachments"
                   type="file"
                   class="form-control"
-                  id="attachments"
                   multiple
                   accept=".pdf,.doc,.docx"
                   (change)="onFileSelect($event)"
@@ -252,18 +271,19 @@
                 class="btn btn-outline-secondary"
                 routerLink="/circulars"
               >
-                <i class="fas fa-arrow-left me-2"></i>
-                Cancel
+                <i class="fas fa-arrow-left me-2"></i> Cancel
               </button>
+
               <div class="d-flex gap-2">
                 <button
                   type="button"
                   class="btn btn-outline-primary"
                   (click)="resetForm()"
+                  [disabled]="isSubmitting"
                 >
-                  <i class="fa-solid fa-clock-rotate-left"></i>
-                  Reset Circular
+                  <i class="fa-solid fa-clock-rotate-left me-2"></i> Reset
                 </button>
+
                 <button
                   class="btn btn-primary"
                   type="submit"
@@ -271,14 +291,9 @@
                   [attr.aria-busy]="isSubmitting"
                 >
                   @if (isSubmitting) {
-                  <span
-                    class="spinner-border spinner-border-sm me-2"
-                    role="status"
-                    aria-hidden="true"
-                  ></span>
-                  Uploading… } @else {
-                  <i class="fas fa-upload me-2" aria-hidden="true"></i>
-                  Upload Circular }
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Uploading… } @else { <i class="fas fa-upload me-2"></i> Upload
+                  Circular }
                 </button>
               </div>
             </div>
@@ -287,12 +302,12 @@
       </div>
     </div>
 
+    <!-- Right: help -->
     <div class="col-lg-4">
       <div class="card">
         <div class="card-header">
           <h6 class="mb-0">
-            <i class="fas fa-info-circle text-info me-2"></i>
-            Upload Guidelines
+            <i class="fas fa-info-circle text-info me-2"></i> Upload Guidelines
           </h6>
         </div>
         <div class="card-body">
@@ -353,4 +368,209 @@
       </div>
     </div>
   </div>
+  }
+
+  <!-- AI TAB -->
+  @if (activeTab === 'ai') {
+  <div class="mb-3">
+    <label class="form-label">Upload file</label>
+    <input
+      class="form-control"
+      type="file"
+      (change)="onAIFileSelect($event)"
+      accept=".pdf,.doc,.docx"
+    />
+  </div>
+
+  <div class="d-flex gap-2 mb-4">
+    <button
+      class="btn btn-primary"
+      (click)="runAIExtract()"
+      [disabled]="!aiFile || aiIsExtracting"
+    >
+      @if (aiIsExtracting) {
+      <span class="spinner-border spinner-border-sm me-2"></span> Extracting...
+      } @else { <i class="fas fa-robot me-2"></i> Run AI Extraction }
+    </button>
+  </div>
+
+  @if (aiResult) {
+  <div class="row g-3">
+    <!-- Summary -->
+    <div class="col-12 col-lg-6">
+      <div class="card scroll-card">
+        <div class="card-header fw-semibold sticky-header">Summary</div>
+        <div class="card-body scroll-body">
+          <div class="prose" [innerHTML]="summaryHtml"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actionable Items with formatted bullets -->
+    <div class="col-12 col-lg-6">
+      <div class="card scroll-card">
+        <div class="card-header fw-semibold sticky-header">
+          Actionable Items
+        </div>
+        <div class="card-body scroll-body">
+          <div class="prose" [innerHTML]="actionablesHtml"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Department summary -->
+    <div class="col-12">
+      <div class="card scroll-card">
+        <div class="card-header fw-semibold sticky-header">
+          Department Summary
+        </div>
+        <div class="card-body scroll-body">
+          <div class="prose" [innerHTML]="deptSummaryHtml"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save -->
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header fw-semibold">Save as Circular</div>
+        <div class="card-body">
+          <form [formGroup]="metaForm">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Title *</label>
+                <input
+                  class="form-control"
+                  formControlName="title"
+                  [class.is-invalid]="
+                    metaForm.get('title')?.invalid &&
+                    metaForm.get('title')?.touched
+                  "
+                />
+                <div class="invalid-feedback">Title is required</div>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Regulatory Body *</label>
+                <select
+                  class="form-select"
+                  formControlName="regulatoryBody"
+                  [class.is-invalid]="
+                    metaForm.get('regulatoryBody')?.invalid &&
+                    metaForm.get('regulatoryBody')?.touched
+                  "
+                >
+                  <option value="RBI">RBI</option>
+                  <option value="SEBI">SEBI</option>
+                  <option value="IRDAI">IRDAI</option>
+                  <option value="NABARD">NABARD</option>
+                  <option value="NPCI">NPCI</option>
+                </select>
+                <div class="invalid-feedback">
+                  Please select a regulatory body
+                </div>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Category *</label>
+                <select
+                  class="form-select"
+                  formControlName="category"
+                  [class.is-invalid]="
+                    metaForm.get('category')?.invalid &&
+                    metaForm.get('category')?.touched
+                  "
+                >
+                  <option value="Compliance">Compliance</option>
+                  <option value="Risk Management">Risk Management</option>
+                  <option value="Operations">Operations</option>
+                  <option value="Technology">Technology</option>
+                  <option value="Governance">Governance</option>
+                  <option value="Customer Protection">
+                    Customer Protection
+                  </option>
+                </select>
+                <div class="invalid-feedback">Please select a category</div>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Priority *</label>
+                <select
+                  class="form-select"
+                  formControlName="priority"
+                  [class.is-invalid]="
+                    metaForm.get('priority')?.invalid &&
+                    metaForm.get('priority')?.touched
+                  "
+                >
+                  <option value="LOW">Low</option>
+                  <option value="MEDIUM">Medium</option>
+                  <option value="HIGH">High</option>
+                  <option value="CRITICAL">Critical</option>
+                </select>
+                <div class="invalid-feedback">Please select priority</div>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Issued Date *</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  formControlName="issuedDate"
+                  [class.is-invalid]="
+                    metaForm.get('issuedDate')?.invalid &&
+                    metaForm.get('issuedDate')?.touched
+                  "
+                />
+                <div class="invalid-feedback">Issued date is required</div>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Effective Date *</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  formControlName="effectiveDate"
+                  [class.is-invalid]="
+                    metaForm.get('effectiveDate')?.invalid &&
+                    metaForm.get('effectiveDate')?.touched
+                  "
+                />
+                <div class="invalid-feedback">Effective date is required</div>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">Reference Number</label>
+                <input
+                  class="form-control"
+                  formControlName="referenceNumber"
+                  placeholder="Auto-generated if empty"
+                />
+              </div>
+            </div>
+          </form>
+
+          <div class="mt-3">
+            <button
+              class="btn btn-success"
+              (click)="saveExtractAsCircular()"
+              [disabled]="isSubmitting || metaForm.invalid"
+            >
+              @if (isSubmitting) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Saving... } @else { <i class="fas fa-save me-2"></i> Save Circular
+              &amp; Open }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  } @if (!aiResult && !aiIsExtracting) {
+  <div class="text-muted">
+    Upload a file and click <strong>Run AI Extraction</strong> to see the
+    summary and actionables here.
+  </div>
+  } }
 </div>
