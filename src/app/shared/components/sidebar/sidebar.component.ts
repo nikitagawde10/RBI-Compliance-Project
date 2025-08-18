@@ -19,67 +19,71 @@ import { Observable } from "rxjs";
           </h6> -->
         </div>
 
-        <nav class="nav flex-column">
+        <!-- <nav class="nav flex-column">
           <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
             <i class="fas fa-tachometer-alt me-3"></i>
             Dashboard
-          </a>
+          </a> -->
 
-          <a class="nav-link" routerLink="/circulars" routerLinkActive="active">
-            <i class="fas fa-file-alt me-3"></i>
-            Circulars
-          </a>
+        <a
+          class="nav-link"
+          routerLink="/circulars/upload"
+          routerLinkActive="active"
+        >
+          <i class="fas fa-file-alt me-3"></i>
+          Circulars
+        </a>
 
-          <a class="nav-link" routerLink="/tasks" routerLinkActive="active">
+        <!-- <a class="nav-link" routerLink="/tasks" routerLinkActive="active">
             <i class="fas fa-tasks me-3"></i>
             Tasks
+          </a> -->
+
+        <!-- <a
+          *ngIf="user?.role !== 'EMPLOYEE'"
+          class="nav-link"
+          routerLink="/reports"
+          routerLinkActive="active"
+        >
+          <i class="fas fa-chart-bar me-3"></i>
+          Reports
+        </a> -->
+
+        <hr class="my-3" *ngIf="isAdmin$ | async" />
+
+        <div *ngIf="isAdmin$ | async">
+          <h6 class="text-muted mb-3 text-uppercase fw-semibold small">
+            Administration
+          </h6>
+
+          <a
+            class="nav-link"
+            routerLink="/admin/users"
+            routerLinkActive="active"
+          >
+            <i class="fas fa-users me-3"></i>
+            User Management
           </a>
 
           <a
-            *ngIf="user?.role !== 'EMPLOYEE'"
             class="nav-link"
-            routerLink="/reports"
+            routerLink="/admin/departments"
             routerLinkActive="active"
           >
-            <i class="fas fa-chart-bar me-3"></i>
-            Reports
+            <i class="fas fa-building me-3"></i>
+            Departments
           </a>
 
-          <hr class="my-3" *ngIf="isAdmin$ | async" />
-
-          <div *ngIf="isAdmin$ | async">
-            <h6 class="text-muted mb-3 text-uppercase fw-semibold small">
-              Administration
-            </h6>
-
-            <a
-              class="nav-link"
-              routerLink="/admin/users"
-              routerLinkActive="active"
-            >
-              <i class="fas fa-users me-3"></i>
-              User Management
-            </a>
-
-            <a
-              class="nav-link"
-              routerLink="/admin/departments"
-              routerLinkActive="active"
-            >
-              <i class="fas fa-building me-3"></i>
-              Departments
-            </a>
-
-            <a
-              class="nav-link"
-              routerLink="/admin/system"
-              routerLinkActive="active"
-            >
-              <i class="fas fa-cogs me-3"></i>
-              System Settings
-            </a>
-          </div>
-        </nav>
+          <a
+            class="nav-link"
+            routerLink="/admin/system"
+            routerLinkActive="active"
+          >
+            <i class="fas fa-cogs me-3"></i>
+            System Settings
+          </a>
+        </div>
+        <!-- </nav> -->
       </div>
     </div>
   `,

@@ -1,0 +1,138 @@
+<div class="container py-4">
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a routerLink="/circulars">
+          <i class="fas fa-file-alt me-1"></i> Circulars
+        </a>
+      </li>
+      <li class="breadcrumb-item active">Manual AI Extraction</li>
+    </ol>
+  </nav>
+
+  <!-- Error -->
+  @if (uploadError) {
+  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>{{ uploadError }}
+    <button
+      type="button"
+      class="btn-close"
+      (click)="uploadError = null"
+      aria-label="Close"
+    ></button>
+  </div>
+  }
+
+  <!-- Controls (form wrapper needed for formControlName) -->
+  <form [formGroup]="uploadForm" class="mb-3">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold" for="regulatoryBody"
+          >Regulatory Body *</label
+        >
+        <select
+          id="regulatoryBody"
+          class="form-select"
+          formControlName="regulatoryBody"
+          [class.is-invalid]="
+            uploadForm.get('regulatoryBody')?.invalid &&
+            uploadForm.get('regulatoryBody')?.touched
+          "
+        >
+          <option value="">Select Regulatory Body</option>
+          <option value="RBI">Reserve Bank of India (RBI)</option>
+          <option value="IRDAI">Insurance Regulatory Authority (IRDAI)</option>
+        </select>
+        <div class="invalid-feedback">Please select a regulatory body</div>
+      </div>
+
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Upload file</label>
+        <input
+          class="form-control"
+          type="file"
+          (change)="onAIFileSelect($event)"
+          accept=".pdf,.doc,.docx"
+        />
+      </div>
+    </div>
+  </form>
+
+  <div class="d-flex gap-2 mb-4">
+    <button
+      class="btn btn-primary"
+      (click)="runAIExtract()"
+      [disabled]="!aiFile || aiIsExtracting"
+    >
+      @if (aiIsExtracting) {
+      <span class="spinner-border spinner-border-sm me-2"></span>
+      Extracting... } @else {
+      <i class="fas fa-robot me-2"></i> Run AI Extraction }
+    </button>
+  </div>
+
+  @if (aiResult) {
+  <div class="row g-3">
+    <!-- Summary -->
+    <div class="col-12 col-lg-6">
+      <div class="card scroll-card border-primary">
+        <div
+          class="card-header fw-semibold sticky-header bg-primary text-white"
+        >
+          Summary
+        </div>
+        <div class="card-body scroll-body">
+          <div class="prose" [innerHTML]="summaryHtml"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actionable Items -->
+    <div class="col-12 col-lg-6">
+      <div class="card scroll-card border-success">
+        <div
+          class="card-header fw-semibold sticky-header bg-success text-white"
+        >
+          Actionable Items
+        </div>
+        <div class="card-body scroll-body">
+          <div class="prose" [innerHTML]="actionablesHtml"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Department summaries -->
+    <div class="col-12">
+      <div class="card border-info">
+        <div class="card-header fw-semibold bg-info text-white">
+          Department Summary
+        </div>
+        <div class="card-body">
+          @if (departmentEntries.length === 0) {
+          <div class="text-muted">No department info available.</div>
+          } @else {
+          <div class="row g-3 d-flex flex-column">
+            <div
+              class="col-12 col-md-6 col-xl-4 w-100"
+              *ngFor="let dep of departmentEntries; trackBy: trackByDept"
+            >
+              <div class="card h-100 w-100 department-card {{ dep.name }}">
+                <div class="card-header fw-semibold">{{ dep.name }}</div>
+                <div class="card-body">
+                  <div class="prose" [innerHTML]="dep.html"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  } @if (!aiResult && !aiIsExtracting) {
+  <div class="text-muted">
+    Please select a Regulatory Body, upload a file, and click
+    <strong>Run AI Extraction</strong> to see the summary and actionables here.
+  </div>
+  }
+</div>

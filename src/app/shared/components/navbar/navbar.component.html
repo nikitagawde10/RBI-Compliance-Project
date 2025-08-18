@@ -28,19 +28,23 @@
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto ms-4">
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link" routerLink="/dashboard" routerLinkActive="active">
             <i class="fas fa-tachometer-alt me-2"></i>
             Dashboard
           </a>
-        </li>
+        </li> -->
         <li class="nav-item">
-          <a class="nav-link" routerLink="/circulars" routerLinkActive="active">
+          <a
+            class="nav-link"
+            routerLink="/circulars/upload"
+            routerLinkActive="active"
+          >
             <i class="fas fa-file-alt me-2"></i>
             Circulars
           </a>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link" routerLink="/tasks" routerLinkActive="active">
             <i class="fas fa-tasks me-2"></i>
             Tasks
@@ -51,7 +55,7 @@
             <i class="fas fa-chart-bar me-2"></i>
             Reports
           </a>
-        </li>
+        </li> -->
       </ul>
 
       <div
@@ -59,7 +63,7 @@
         *ngIf="currentUser$ | async as user"
       >
         <!-- Notifications -->
-        <div class="nav-item position-relative">
+        <!-- <div class="nav-item position-relative">
           <button
             class="btn btn-link nav-link position-relative p-2"
             (click)="toggleNotifications($event)"
@@ -75,7 +79,7 @@
             <ng-template #noBadge></ng-template>
           </button>
 
-          <!-- Notifications Dropdown -->
+           Notifications Dropdown 
           <div class="notifications-dropdown" [class.show]="showNotifications">
             <div class="dropdown-header">
               <div class="d-flex justify-content-between align-items-center">
@@ -133,31 +137,36 @@
               >
             </div>
           </div>
-        </div>
+        </div> -->
 
         <!-- Profile Dropdown -->
         <div class="nav-item position-relative">
-          <button
+          <!-- <button
             class="btn btn-link nav-link d-flex align-items-center p-2"
             (click)="toggleProfile($event)"
             [class.active]="showProfile"
-          >
+          > -->
+          <div class="d-flex align-items-center p-2">
             <div
               class="bg-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center"
               style="width: 32px; height: 32px; font-size: 0.875rem"
             >
-              {{ getUserInitials(user) }}
+              TU
+              <!-- {{ getUserInitials(user) }} -->
             </div>
             <div class="d-none d-md-block">
               <div class="fw-semibold small">
-                {{ getUserFullName(user) }}
+                Test User
+                <!-- {{ getUserFullName(user) }} -->
               </div>
               <div class="text-muted" style="font-size: 0.75rem">
-                {{ user?.role || "User" }}
+                <!-- {{ user?.role || "User" }} -->
+                User
               </div>
             </div>
-            <i class="fas fa-chevron-down ms-2 small"></i>
-          </button>
+          </div>
+          <!-- <i class="fas fa-chevron-down ms-2 small"></i> -->
+          <!-- </button> -->
 
           <!-- Profile Dropdown -->
           <div class="profile-dropdown" [class.show]="showProfile">

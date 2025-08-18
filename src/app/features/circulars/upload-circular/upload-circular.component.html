@@ -8,7 +8,7 @@
           <i class="fas fa-file-alt me-1"></i> Circulars
         </a>
       </li>
-      <li class="breadcrumb-item active">Upload New Circular</li>
+      <li class="breadcrumb-item active">Manual AI Extraction</li>
     </ol>
   </nav>
 
@@ -25,33 +25,10 @@
   </div>
   }
 
-  <!-- Angular-driven tabs -->
-  <ul class="nav nav-tabs mb-3">
-    <li class="nav-item">
-      <button
-        class="nav-link"
-        [class.active]="activeTab === 'manual'"
-        (click)="setTab('manual')"
-      >
-        Manual
-      </button>
-    </li>
-    <li class="nav-item">
-      <button
-        class="nav-link"
-        [class.active]="activeTab === 'ai'"
-        (click)="setTab('ai')"
-      >
-        AI Extract
-      </button>
-    </li>
-  </ul>
-
   <!-- MANUAL TAB -->
-  @if (activeTab === 'manual') {
   <div class="row">
     <!-- Left: form -->
-    <div class="col-lg-8">
+    <!-- <div class="col-lg-8">
       <div class="card">
         <div class="card-header">
           <h5 class="mb-0">
@@ -300,10 +277,10 @@
           </form>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- Right: help -->
-    <div class="col-lg-4">
+    <!-- <div class="col-lg-4">
       <div class="card">
         <div class="card-header">
           <h6 class="mb-0">
@@ -366,14 +343,35 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
-  }
 
   <!-- AI TAB -->
-  @if (activeTab === 'ai') {
+
   <div class="mb-3">
-    <label class="form-label">Upload file</label>
+    <div class="col-md-6">
+      <label class="form-label fw-semibold" for="regulatoryBody"
+        >Regulatory Body *</label
+      >
+      <select
+        id="regulatoryBody"
+        class="form-select"
+        formControlName="regulatoryBody"
+        [class.is-invalid]="
+          uploadForm.get('regulatoryBody')?.invalid &&
+          uploadForm.get('regulatoryBody')?.touched
+        "
+      >
+        <option value="">Select Regulatory Body</option>
+        <option value="RBI">Reserve Bank of India (RBI)</option>
+        <!-- <option value="SEBI">Securities and Exchange Board (SEBI)</option> -->
+        <option value="IRDAI">Insurance Regulatory Authority (IRDAI)</option>
+        <!-- <option value="NABARD">National Bank for Agriculture (NABARD)</option> -->
+        <!-- <option value="NPCI">National Payments Corporation (NPCI)</option> -->
+      </select>
+      <div class="invalid-feedback">Please select a regulatory body</div>
+    </div>
+    <label class="form-label fw-semibold mt-3">Upload file</label>
     <input
       class="form-control"
       type="file"
@@ -431,7 +429,7 @@
     </div>
 
     <!-- Save -->
-    <div class="col-12">
+    <!-- <div class="col-12">
       <div class="card">
         <div class="card-header fw-semibold">Save as Circular</div>
         <div class="card-body">
@@ -564,13 +562,13 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 
   } @if (!aiResult && !aiIsExtracting) {
   <div class="text-muted">
-    Upload a file and click <strong>Run AI Extraction</strong> to see the
-    summary and actionables here.
+    Please select a Regulatory Department, upload a file and click
+    <strong>Run AI Extraction</strong> to see the summary and actionable here.
   </div>
-  } }
+  }
 </div>

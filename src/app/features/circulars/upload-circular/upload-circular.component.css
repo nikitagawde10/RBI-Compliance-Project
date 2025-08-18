@@ -1,64 +1,48 @@
+/* ===== Layout helpers ===== */
 .upload-container {
   padding: 2rem;
   max-width: 100%;
   overflow-x: hidden;
 }
-/* Make the whole card scroll, so the header can stick inside it */
-.scroll-card {
-  max-height: 500px; /* adjust as needed */
-  overflow: auto; /* scrolling happens here */
-  display: flex;
-  flex-direction: column;
-}
 
-/* Pin the header to the top of the scroller */
-.scroll-card .card-header {
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  background-color: #fff; /* ensure it’s not transparent while sticking */
-  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-/* Let body take remaining height inside the flex card */
-.scroll-card .card-body {
-  flex: 1 1 auto;
-}
-
-/* (Optional) if your grid columns are flex parents, this helps nested scrolls */
-.ai-scroll-col {
-  min-height: 0;
-}
-/* Sticky header + scrollable body */
+/* Sticky header + scrollable body inside a card */
 .scroll-card {
   height: 500px;
   max-height: 500px;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* Keep header fixed while body scrolls */
+  border-radius: 10px;
+  overflow: hidden; /* keep header fixed while body scrolls */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .sticky-header {
   position: sticky;
   top: 0;
-  z-index: 1;
-  background: #fff; /* Ensure text is readable when it sticks */
+  z-index: 2;
+  background: #fff; /* ensure readable when it sticks */
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .scroll-body {
+  flex: 1 1 auto;
   overflow-y: auto;
   padding-right: 8px; /* space for scrollbar */
 }
 
-/* Typography helpers for rendered HTML */
+/* ===== Typography helpers for rendered HTML ===== */
+.card-header {
+  font-size: 1.1rem;
+  letter-spacing: 0.3px;
+}
+
 .prose p {
-  margin: 0 0 0.75rem 0;
+  margin-bottom: 0.8rem;
+  line-height: 1.55;
 }
 
 .prose ul {
-  padding-left: 1.2rem;
-  margin: 0 0 0.75rem 0;
+  margin: 0.25rem 0 0.75rem 1.25rem;
 }
 
 .prose li {
@@ -69,9 +53,96 @@
   font-weight: 700;
 }
 
-/* Optional: subtle code fence for pre->paragraph conversions */
 .prose hr {
   border: 0;
   border-top: 1px solid #e9ecef;
   margin: 1rem 0;
+}
+
+/* ===== Department cards (soft pastels) ===== */
+.department-card {
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+/* Compliance */
+.department-card.Compliance {
+  border-color: #b7e4c7;
+}
+.department-card.Compliance .card-header {
+  background-color: #d8f3dc;
+  color: #1b4332;
+}
+
+/* Risk Management — note: name becomes two classes 'Risk' and 'Management' */
+.department-card.Risk.Management {
+  border-color: #b2ebf2;
+}
+.department-card.Risk.Management .card-header {
+  background-color: #e0f7fa;
+  color: #004d40;
+}
+
+/* Administration */
+.department-card.Administration {
+  border-color: #ffe69c;
+}
+.department-card.Administration .card-header {
+  background-color: #fff3cd;
+  color: #7f6000;
+}
+
+/* Operations */
+.department-card.Operations {
+  border-color: #f5c2c7;
+}
+.department-card.Operations .card-header {
+  background-color: #fde2e4;
+  color: #8b2c34;
+}
+
+/* IT Security — becomes classes 'IT' and 'Security' */
+.department-card.IT.Security {
+  border-color: #cbb2fe;
+}
+.department-card.IT.Security .card-header {
+  background-color: #e3dffd;
+  color: #3a0ca3;
+}
+
+/* Support hyphenated class name as well (e.g., "IT-Security") */
+.department-card.IT-Security {
+  border-color: #cbb2fe;
+}
+.department-card.IT-Security .card-header {
+  background-color: #e3dffd;
+  color: #3a0ca3;
+}
+
+/* Finance */
+.department-card.Finance {
+  border-color: #b2ebf2;
+}
+.department-card.Finance .card-header {
+  background-color: #e0f7fa;
+  color: #004d40;
+}
+
+/* Human Resources — becomes classes 'Human' and 'Resources' */
+.department-card.Human.Resources {
+  border-color: #ffccd5;
+}
+.department-card.Human.Resources .card-header {
+  background-color: #ffe5ec;
+  color: #721c24;
+}
+
+/* Support hyphenated class name as well (e.g., "Human-Resources") */
+.department-card.Human-Resources {
+  border-color: #ffccd5;
+}
+.department-card.Human-Resources .card-header {
+  background-color: #ffe5ec;
+  color: #721c24;
 }

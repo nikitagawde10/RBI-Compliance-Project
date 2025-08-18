@@ -6,126 +6,51 @@ import {
   Validators,
   ReactiveFormsModule,
 } from "@angular/forms";
-import { Router, RouterModule } from "@angular/router";
+import { RouterModule } from "@angular/router";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
-import { CircularService } from "../../../core/services/circular.service";
-import { CreateCircularRequest } from "../../../core/models/api.model";
+
+type AiResult = {
+  summary: string;
+  actionable_items: string;
+  department_summary: Record<string, string>;
+};
 
 @Component({
   selector: "app-upload-circular",
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
-  templateUrl: "./upload-circular.component.html",
+  templateUrl: "./upload-circular-demo.component.html",
   styleUrl: "./upload-circular.component.css",
 })
 export class UploadCircularComponent {
-  // Tabs
-  activeTab: "manual" | "ai" = "manual";
-
-  // Manual form
+  // minimal form to satisfy template bindings
   uploadForm: FormGroup;
+
+  // UI state
   isSubmitting = false;
   uploadError: string | null = null;
-  selectedFiles: File[] = [];
 
   // AI flow
   aiFile: File | null = null;
   aiIsExtracting = false;
-  aiResult: {
-    summary: string;
-    actionable_items: string;
-    department_summary: string;
-  } | null = null;
+  aiResult: AiResult | null = null;
 
-  // Rendered, safe HTML
+  // Rendered sections
   summaryHtml: SafeHtml = "";
   actionablesHtml: SafeHtml = "";
-  deptSummaryHtml: SafeHtml = "";
+  departmentEntries: Array<{ name: string; html: SafeHtml }> = [];
 
-  // Minimal meta form for saving AI result as circular
-  metaForm: FormGroup;
-
-  constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private sanitizer: DomSanitizer,
-    private circularService: CircularService
-  ) {
+  constructor(private fb: FormBuilder, private sanitizer: DomSanitizer) {
     this.uploadForm = this.fb.group({
-      referenceNumber: ["", [Validators.required]],
-      regulatoryBody: ["", [Validators.required]],
-      title: ["", [Validators.required]],
-      description: ["", [Validators.required]],
-      category: ["", [Validators.required]],
-      priority: ["", [Validators.required]],
-      issuedDate: ["", [Validators.required]],
-      effectiveDate: ["", [Validators.required]],
-      content: ["", [Validators.required]],
-    });
-
-    this.metaForm = this.fb.group({
-      title: ["", Validators.required],
-      regulatoryBody: ["RBI", Validators.required],
-      category: ["Compliance", Validators.required],
-      priority: ["HIGH", Validators.required],
-      issuedDate: ["", Validators.required],
-      effectiveDate: ["", Validators.required],
-      referenceNumber: [""],
+      regulatoryBody: ["", Validators.required],
     });
   }
 
-  /* ---------------- Tabs ---------------- */
-  setTab(tab: "manual" | "ai") {
-    this.activeTab = tab;
-  }
-
-  /* ---------------- Manual Upload ---------------- */
-  onFileSelect(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.selectedFiles = input.files ? Array.from(input.files) : [];
-  }
-
-  resetForm() {
-    this.uploadForm.reset();
-    this.selectedFiles = [];
-    this.uploadError = null;
-  }
-
+  /* ---------------- manual submit (no-op for this view) ---------------- */
   onSubmitManual() {
-    if (this.uploadForm.invalid) return;
-
     this.isSubmitting = true;
     this.uploadError = null;
-
-    // Build payload (attachments are files in a real API)
-    const payload: CreateCircularRequest = {
-      referenceNumber: this.uploadForm.value.referenceNumber,
-      regulatoryBody: this.uploadForm.value.regulatoryBody,
-      title: this.uploadForm.value.title,
-      description: this.uploadForm.value.description,
-      category: this.uploadForm.value.category,
-      priority: this.uploadForm.value.priority,
-      issuedDate: this.uploadForm.value.issuedDate,
-      effectiveDate: this.uploadForm.value.effectiveDate,
-      content: this.uploadForm.value.content,
-      attachments: this.selectedFiles, // expects File[]
-    };
-
-    this.circularService.createCircular(payload).subscribe({
-      next: (res) => {
-        this.isSubmitting = false;
-        if (res?.data?.id) {
-          this.router.navigate(["/circulars", res.data.id]);
-        } else {
-          this.router.navigate(["/circulars"]);
-        }
-      },
-      error: (err) => {
-        this.isSubmitting = false;
-        this.uploadError =
-          (err && (err.message || String(err))) || "Upload failed";
-      },
-    });
+    setTimeout(() => (this.isSubmitting = false), 300);
   }
 
   /* ---------------- AI Extract ---------------- */
@@ -135,83 +60,74 @@ export class UploadCircularComponent {
   }
 
   runAIExtract() {
-    if (!this.aiFile) return;
+    this.uploadError = null;
 
-    // Simulate API call for demo — swap this with your real endpoint
+    if (!this.uploadForm.get("regulatoryBody")?.value) {
+      this.uploadError = "Please select a regulatory body.";
+      return;
+    }
+    if (!this.aiFile) {
+      this.uploadError = "Please upload a document to extract.";
+      return;
+    }
+
     this.aiIsExtracting = true;
+
     setTimeout(() => {
       this.aiResult = {
         summary:
-          "The document is a circular issued by the Reserve Bank of India (RBI) to all scheduled commercial banks, local area banks, and small finance banks in India. The circular outlines the guidelines for compliance functions in banks and the role of Chief Compliance Officer (CCO).\n\nThe main points of the circular are:\n\n1. Banks must have an effective compliance culture, independent corporate compliance function, and strong compliance risk management programme.\n2. A CCO should be appointed by a bank to manage compliance risk effectively. The CCO should have a minimum fixed tenure of 3 years and should not be removed or transferred without explicit prior approval of the Board.\n3. Eligibility criteria for appointment as CCO include:\n\t* Rank: Senior executive with at least General Manager rank\n\t* Age: Not more than 55 years\n\t* Experience: At least 15 years in banking or financial services, with minimum 5 years in Audit/Finance/Compliance/Legal/Risk Management functions\n\t* Skills: Good understanding of industry and risk management, knowledge of regulations and legal framework\n4. The selection process for CCO should be done through a well-defined selection committee constituted by the Board.\n5. Reporting requirements include:\n\t* Prior intimation to RBI before appointment or removal of CCO\n\t* Detailed profile of candidate along with fit and proper certification by MD & CEO\n6. The CCO's reporting line is direct to MD & CEO and/or Board/Board Committee (ACB).\n7. Authority: The CCO has the authority to communicate with any staff member, access all records or files necessary for compliance issues, and report promptly to the Board/ACB/MD & CEO.\n8. Duties and responsibilities of the compliance function include:\n\t* Apprising the Board and senior management on regulations, rules, and standards\n\t* Conducting assessments of compliance risk and developing risk-oriented activity plans\n\t* Reporting on compliance failures/breaches to the Board/ACB/MD & CEO\n9. Internal audit: The compliance function should be subject to internal audit.\n10. Dual hatting: The CCO should not have any role that brings elements of conflict of interest, except in banks where proportionality is justified.\n\nThe circular also emphasizes the importance of an independent compliance function and adherence to the bank's compliance policy. Any new appointment will be governed by these instructions, while existing COOs may reappoint their current incumbent if they meet the requirements within a period of six months.",
+          "The document is a circular issued by the Reserve Bank of India (RBI) to all scheduled commercial banks, local area banks, and small finance banks regarding compliance functions in banks and the role of Chief Compliance Officer (CCO). The circular aims to bring uniformity in approach followed by banks in this regard.\n\nKey points from the document are:\n\n1. Banks are required to have an effective compliance culture, independent corporate compliance function, and strong compliance risk management program at bank and group levels.\n2. The CCO should be a senior executive with a minimum of 15 years' experience in banking or financial services, and possess certain skills and stature.\n3. The selection process for the CCO should be done through a well-defined selection committee constituted by the Board.\n4. The CCO should have direct reporting lines to the MD & CEO and/or the Board/Board Committee (ACB).\n5. The compliance function should have the authority to communicate with any staff member, access all records or files necessary for compliance issues, and report promptly to the Board/ACB/MD & CEO about major changes or observations relating to compliance risk.\n6. The duties and responsibilities of the compliance function include conducting assessments of compliance risk, developing risk-oriented activity plans, reporting on compliance failures/breaches, monitoring and testing compliance, examining sustenance of compliance, and ensuring compliance with supervisory observations made by RBI.\n7. Internal audit should be conducted on the compliance function.\n8. There should be no \"dual hatting\" or conflict of interest in the role of the CCO.\n9. The bank's Board of Directors is overall responsible for overseeing the effective management of the bank's compliance function and compliance risk.\n\nThe circular will come into effect immediately, and any new appointment shall be governed by the instructions contained herein. Existing CCOs may follow the indicated processes within a period of six months to ensure their appointment meets the requirements.",
         actionable_items:
-          "Here are the actionable instructions or policy changes extracted from the document in a clear and crisp bullet format:\n\n• **Policy**: A bank must lay down a Board-approved compliance policy that:\n\t+ Clearly spells out its compliance philosophy\n\t+ Outlines Tone from the Top, Accountability, Incentive Structure, and Effective Communication & Challenges\n\t+ Covers structure and role of the compliance function\n\t+ Sets processes for identifying, assessing, monitoring, managing, and reporting on compliance risk throughout the bank\n\t+ Is reviewed at least once a year\n\n• **Tenor for appointment of CCO**: The CCO must be appointed for a minimum fixed tenure of not less than 3 years.\n\n• **Transfer/Removal of CCO**: The CCO may be transferred or removed before completion of tenure only in exceptional circumstances with explicit prior approval of the Board after following a well-defined and transparent internal administrative procedure.\n\n• **Eligibility Criteria for appointment as CCO**:\n\t+ Rank: Senior executive of the bank, preferably in the rank of General Manager or an equivalent position\n\t+ Age: Not more than 55 years\n\t+ Experience: At least 15 years in banking or financial services, with minimum 5 years in Audit/Finance/Compliance/Legal/Risk Management functions\n\t+ Skills: Good understanding of industry and risk management, knowledge of regulations, legal framework, and sensitivity to supervisors' expectations\n\t+ Stature: Ability to independently exercise judgement\n\n• **Selection Process**: The selection process for the CCO must be done on the basis of a well-defined selection process and recommendations made by the senior executive-level selection committee constituted by the Board.\n\n• **Reporting Requirements**: A prior intimation must be provided to the Department of Supervision, Reserve Bank of India, before appointment, premature transfer/removal of the CCO. The information should include a detailed profile of the candidate along with fit and proper certification by the MD & CEO of the bank.\n\n• **Reporting Line**: The CCO must have direct reporting lines to the MD & CEO and/or Board/Board Committee (ACB) of the bank.\n\n• **Authority**: The CCO and compliance function must have the authority to communicate with any staff member and have access to all records or files necessary to enable them to carry out entrusted responsibilities in respect of compliance issues.\n\n• **Duties and Responsibilities of Compliance Function**:\n\t+ To apprise the Board and senior management on regulations, rules, and standards\n\t+ To provide clarification on any compliance-related issues\n\t+ To conduct assessment of compliance risk (at least once a year)\n\t+ To report promptly to the Board/ACB/MD & CEO about any major changes or observations relating to compliance risk\n\t+ To periodically report on compliance failures/breaches to the Board/ACB and circulating to the concerned functional heads\n\n• **Internal Audit**: The compliance function must be subject to internal audit.\n\n• **Dual Hatting**: There shall not be any dual hatting, i.e., the CCO should not be given any responsibility that brings elements of conflict of interest, especially roles relating to business.\n\n• **The CCO shall not be member of any committee which brings his/her role in conflict with responsibility as member of the committee**",
-        department_summary:
-          'Summary related to the "string" department:\n\nNo summary/instruction to this department.',
+          "Here are the actionable instructions or policy changes extracted from the document, organized by department:\n\n**Compliance:**\n\n* A bank shall lay down a Board-approved compliance policy clearly spelling out its compliance philosophy, expectations on compliance culture, structure and role of the compliance function, and processes for identifying, assessing, monitoring, managing, and reporting on compliance risk throughout the bank.\n* The bank shall develop and maintain a quality assurance and improvement program covering all aspects of the compliance function, subject to independent external review periodically (at least once in three years).\n\n**Risk Management:**\n\n* Banks are required to have an effective compliance risk management programme at bank and group level.\n\n**No actionable items for these departments:**\nAdministration, Operations, IT Security, Finance, Human Resources",
+        department_summary: {
+          Administration: "No summary/instruction to this department.",
+          Compliance:
+            "Summary for the Compliance department:\n\nAs part of a robust compliance system, banks are required to have an effective compliance culture, independent corporate compliance function, and strong compliance risk management program. The Chief Compliance Officer (CCO) is responsible for managing compliance risk effectively.\n\nThe guidelines emphasize the importance of having a Board-approved compliance policy that clearly outlines the bank's compliance philosophy, expectations on compliance culture, structure and role of the compliance function, and processes for identifying, assessing, monitoring, and reporting on compliance risk. The policy should also reflect the size, complexity, and compliance risk profile of the bank.\n\nAdditionally, the guidelines stress the need to develop and maintain a quality assurance and improvement program covering all aspects of the compliance function, which shall be subject to independent external review periodically (at least once in three years).",
+          "Risk Management":
+            'Summary for the "Risk Management" department:\n\n* Banks are required to have an effective compliance risk management program at bank and group level, which includes identifying, assessing, monitoring, managing, and reporting on compliance risks throughout the bank.\n* The compliance risk management program should reflect the size, complexity, and compliance risk profile of the bank, as well as ensure compliance with all applicable statutory provisions, rules, and regulations.\n\nNo summary/instruction to this department.',
+          Operations:
+            'Summary related to the "Operations" department:\n\nNo summary/instruction to this department.',
+          "IT Security": "No summary/instruction to this department.",
+          Finance:
+            'Summary related to the "Finance" department:\n\nNo summary/instruction to this department.',
+          "Human Resources": "No summary/instruction to this department.",
+        },
       };
+      // ---------------------------------------------------------------
 
-      // Convert each section to pretty HTML
+      // Build rendered HTML sections
       this.summaryHtml = this.sanitizeHtml(
         this.textToParagraphs(this.aiResult.summary)
       );
       this.actionablesHtml = this.sanitizeHtml(
         this.actionablesToHtml(this.aiResult.actionable_items)
       );
-      this.deptSummaryHtml = this.sanitizeHtml(
-        this.textToParagraphs(this.aiResult.department_summary)
+
+      // Build department-wise entries (cards)
+      this.departmentEntries = this.buildDepartmentEntries(
+        this.aiResult.department_summary
       );
 
-      // Pre-fill meta form with a decent default
-      this.metaForm.patchValue({
-        title: "RBI Guidelines on Compliance & CCO",
-        regulatoryBody: "RBI",
-        category: "Compliance",
-        priority: "HIGH",
-      });
-
       this.aiIsExtracting = false;
-    }, 1200);
+    }, 900);
   }
 
-  saveExtractAsCircular() {
-    if (!this.aiResult || this.metaForm.invalid) return;
+  /* ---------------- Department helpers ---------------- */
 
-    this.isSubmitting = true;
-
-    const body: CreateCircularRequest = {
-      referenceNumber:
-        this.metaForm.value.referenceNumber || `AUTO-${Date.now()}`,
-      regulatoryBody: this.metaForm.value.regulatoryBody,
-      title: this.metaForm.value.title,
-      description: this.aiResult.summary.slice(0, 240) + "…",
-      category: this.metaForm.value.category,
-      priority: this.metaForm.value.priority,
-      issuedDate: this.metaForm.value.issuedDate,
-      effectiveDate: this.metaForm.value.effectiveDate,
-      content: [
-        "# Summary",
-        this.aiResult.summary,
-        "",
-        "# Actionable Items",
-        this.aiResult.actionable_items,
-        "",
-        "# Department Summary",
-        this.aiResult.department_summary,
-      ].join("\n"),
-      attachments: this.aiFile ? [this.aiFile] : [],
-    };
-
-    this.circularService.createCircular(body).subscribe({
-      next: (res) => {
-        this.isSubmitting = false;
-        if (res?.data?.id) {
-          this.router.navigate(["/circulars", res.data.id]);
-        }
-      },
-      error: () => {
-        this.isSubmitting = false;
-      },
+  private buildDepartmentEntries(
+    dept: Record<string, string> | undefined | null
+  ): Array<{ name: string; html: SafeHtml }> {
+    const out: Array<{ name: string; html: SafeHtml }> = [];
+    Object.entries(dept || {}).forEach(([name, value]) => {
+      out.push({
+        name,
+        html: this.sanitizeHtml(this.textToParagraphs(value || "")),
+      });
     });
+    return out;
   }
+
+  trackByDept = (_: number, item: { name: string }) => item.name;
 
   /* ---------------- Rendering helpers ---------------- */
 
@@ -219,83 +135,93 @@ export class UploadCircularComponent {
   private textToParagraphs(text: string): string {
     const esc = this.escapeHtml(text || "");
     const withBold = esc.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-    // Split on blank lines to paragraphs
     return withBold
-      .split(/\n{2,}/)
+      .split(/\n{2,}/) // blank line -> new paragraph
       .map((chunk) => `<p>${chunk.replace(/\n/g, "<br>")}</p>`)
       .join("");
   }
-
-  /** Turn the AI 'actionable_items' string into nested UL/LI with bold labels */
+  private escapeAndBold(s: string): string {
+    return this.escapeHtml(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  }
+  /** Turn AI 'actionable_items' string into nested UL/LI with bold labels */
+  /** Build nested UL/LI where **Section:** is a header and following bullets belong to it */
   private actionablesToHtml(text: string): string {
-    const lines = (text || "").split("\n");
+    const lines = (text || "").split(/\r?\n/);
 
     let html = "";
-    let inTopList = false;
-    let inSubList = false;
+    let openTop = false; // <ul> (top level)
+    let openSection = false; // currently inside <li><strong>…</strong><ul>…</ul></li>
 
-    const flushOpenLists = () => {
-      if (inSubList) {
-        html += "</ul>";
-        inSubList = false;
-      }
-      if (inTopList) {
-        html += "</ul>";
-        inTopList = false;
+    const openTopList = () => {
+      if (!openTop) {
+        html += `<ul class="ai-top">`;
+        openTop = true;
       }
     };
-
-    const openTop = () => {
-      if (!inTopList) {
-        html += `<ul>`;
-        inTopList = true;
+    const closeSection = () => {
+      if (openSection) {
+        html += `</ul></li>`;
+        openSection = false;
       }
     };
-    const openSub = () => {
-      if (!inSubList) {
-        html += `<ul>`;
-        inSubList = true;
+    const closeAll = () => {
+      closeSection();
+      if (openTop) {
+        html += `</ul>`;
+        openTop = false;
       }
     };
-
-    const b = (s: string) => s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
 
     for (const raw of lines) {
-      const line = raw.trimRight();
+      const line = raw.trim();
+      if (!line) continue;
 
-      // top bullet: starts with • / * / -
-      if (/^([•\-\*])\s+/.test(line)) {
-        openTop();
-        // Close sublist if we were in one
-        if (inSubList) {
-          html += "</ul>";
-          inSubList = false;
+      // Section header: **Something:**   (colon optional in source)
+      const section = line.match(/^\*\*([^*]+)\*\*:?\s*$/);
+      if (section) {
+        openTopList();
+        closeSection(); // finish previous section
+        const title = this.escapeHtml(section[1].trim());
+        html += `<li><strong>${title}:</strong><ul>`; // start nested list for this section
+        openSection = true;
+        continue;
+      }
+
+      // Regular bullets inside/outside a section: "*", "-", or "•"
+      if (/^[*\-•]\s+/.test(line)) {
+        openTopList();
+        const content = this.escapeAndBold(line.replace(/^[*\-•]\s+/, ""));
+        if (openSection) {
+          html += `<li>${content}</li>`; // nested under current section
+        } else {
+          html += `<li>${content}</li>`; // top-level bullet (rare case)
         }
-        const content = b(this.escapeHtml(line.replace(/^([•\-\*])\s+/, "")));
+        continue;
+      }
+
+      // Plus-style sub bullets (“+ …”) – keep as list items under current section if open
+      if (/^\+\s+/.test(line)) {
+        openTopList();
+        const content = this.escapeAndBold(line.replace(/^\+\s+/, ""));
+        if (openSection) {
+          html += `<li>${content}</li>`;
+        } else {
+          html += `<li>${content}</li>`;
+        }
+        continue;
+      }
+
+      // Plain text lines – attach as an item under the current section, or a top-level item
+      const content = this.escapeAndBold(line);
+      openTopList();
+      if (openSection) {
         html += `<li>${content}</li>`;
-        continue;
-      }
-
-      // sub bullet: starts with '+' (or '•' preceded by indentation)
-      if (/^\+[\s]+/.test(line)) {
-        openTop();
-        openSub();
-        const content = b(this.escapeHtml(line.replace(/^\+[\s]+/, "")));
+      } else {
         html += `<li>${content}</li>`;
-        continue;
       }
-
-      // blank -> paragraph break within current context
-      if (line.trim() === "") {
-        continue;
-      }
-
-      // Normal text line — attach as paragraph between lists
-      flushOpenLists();
-      html += `<p>${b(this.escapeHtml(line))}</p>`;
     }
 
-    flushOpenLists();
+    closeAll();
     return html;
   }
 
