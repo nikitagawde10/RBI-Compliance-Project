@@ -1,0 +1,162 @@
+/* Card styling improvements */
+.card {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Department Card Styling */
+.department-card {
+  border: 1px solid #dee2e6;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.department-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.department-header {
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  color: #4a5568;
+  background: #f7fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Department-specific pastel colors */
+.department-header[data-department="administration"] {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+.department-header[data-department="compliance"] {
+  background: #bee3f8;
+  color: #2a4365;
+}
+
+.department-header[data-department="risk-management"] {
+  background: #feebc8;
+  color: #7b341e;
+}
+
+.department-header[data-department="operations"] {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.department-header[data-department="it-security"] {
+  background: #e9d8fd;
+  color: #44337a;
+}
+
+.department-header[data-department="finance"] {
+  background: #b2f5ea;
+  color: #234e52;
+}
+
+.department-header[data-department="human-resources"] {
+  background: #fbd38d;
+  color: #7b341e;
+}
+
+.department-body {
+  padding: 1rem;
+  background: #ffffff;
+}
+
+/* Content formatting */
+.card-body h6.fw-bold {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.card-body ul,
+.department-body ul {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.card-body ul li,
+.department-body ul li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.card-body ul li.ms-3,
+.department-body ul li.ms-3 {
+  margin-left: 1rem;
+  font-size: 0.95em;
+  color: #6c757d;
+}
+
+.card-body ul li.indented,
+.department-body ul li.indented {
+  margin-left: 1rem;
+  list-style-type: circle;
+}
+
+.card-body p,
+.department-body p {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.card-body strong,
+.department-body strong {
+  color: #495057;
+}
+
+/* Gap between departments */
+.d-flex.flex-column.gap-3 > .department-card:not(:last-child) {
+  margin-bottom: 0;
+}
+
+/* Loading state */
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-body,
+  .department-body {
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
+
+  .card-body ul,
+  .department-body ul {
+    padding-left: 1.2rem;
+  }
+
+  .department-header {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Scrollbar styling for webkit browsers */
+.card-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.card-body::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.card-body::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

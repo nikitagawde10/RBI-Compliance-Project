@@ -1,4 +1,5 @@
 <div class="container py-4">
+  <!-- Breadcrumb -->
   <nav aria-label="breadcrumb" class="mb-4">
     <ol class="breadcrumb">
       <li class="breadcrumb-item">
@@ -10,7 +11,7 @@
     </ol>
   </nav>
 
-  <!-- Error -->
+  <!-- Error Alert -->
   @if (uploadError) {
   <div class="alert alert-danger alert-dismissible fade show" role="alert">
     <i class="fas fa-exclamation-triangle me-2"></i>{{ uploadError }}
@@ -23,13 +24,13 @@
   </div>
   }
 
-  <!-- Controls (form wrapper needed for formControlName) -->
-  <form [formGroup]="uploadForm" class="mb-3">
-    <div class="row g-3 align-items-end">
+  <!-- Upload Form -->
+  <form [formGroup]="uploadForm" class="mb-4">
+    <div class="row g-3">
       <div class="col-md-6">
-        <label class="form-label fw-semibold" for="regulatoryBody"
-          >Regulatory Body *</label
-        >
+        <label class="form-label fw-semibold" for="regulatoryBody">
+          Regulatory Body *
+        </label>
         <select
           id="regulatoryBody"
           class="form-select"
@@ -47,7 +48,7 @@
       </div>
 
       <div class="col-md-6">
-        <label class="form-label fw-semibold">Upload file</label>
+        <label class="form-label fw-semibold">Upload File</label>
         <input
           class="form-control"
           type="file"
@@ -58,7 +59,8 @@
     </div>
   </form>
 
-  <div class="d-flex gap-2 mb-4">
+  <!-- Extract Button -->
+  <div class="mb-4">
     <button
       class="btn btn-primary"
       (click)="runAIExtract()"
@@ -71,68 +73,73 @@
     </button>
   </div>
 
+  <!-- Results -->
   @if (aiResult) {
   <div class="row g-3">
-    <!-- Summary -->
+    <!-- Summary Card -->
     <div class="col-12 col-lg-6">
-      <div class="card scroll-card border-primary">
-        <div
-          class="card-header fw-semibold sticky-header bg-primary text-white"
-        >
-          Summary
+      <div class="card h-100">
+        <div class="card-header bg-primary text-white fw-semibold">
+          <i class="fas fa-file-text me-2"></i>Summary
         </div>
-        <div class="card-body scroll-body">
-          <div class="prose" [innerHTML]="summaryHtml"></div>
+        <div class="card-body" style="max-height: 400px; overflow-y: auto">
+          <div [innerHTML]="summaryHtml"></div>
         </div>
       </div>
     </div>
 
-    <!-- Actionable Items -->
+    <!-- Actionable Items Card -->
     <div class="col-12 col-lg-6">
-      <div class="card scroll-card border-success">
-        <div
-          class="card-header fw-semibold sticky-header bg-success text-white"
-        >
-          Actionable Items
+      <div class="card h-100">
+        <div class="card-header bg-success text-white fw-semibold">
+          <i class="fas fa-tasks me-2"></i>Actionable Items
         </div>
-        <div class="card-body scroll-body">
-          <div class="prose" [innerHTML]="actionablesHtml"></div>
+        <div class="card-body" style="max-height: 400px; overflow-y: auto">
+          <div [innerHTML]="actionablesHtml"></div>
         </div>
       </div>
     </div>
 
-    <!-- Department summaries -->
+    <!-- Department Summary Cards -->
     <div class="col-12">
-      <div class="card border-info">
-        <div class="card-header fw-semibold bg-info text-white">
-          Department Summary
+      <div class="card">
+        <div class="card-header bg-info text-white fw-semibold">
+          <i class="fas fa-building me-2"></i>Department Summary
         </div>
         <div class="card-body">
           @if (departmentEntries.length === 0) {
-          <div class="text-muted">No department info available.</div>
+          <div class="text-muted">No department information available.</div>
           } @else {
-          <div class="row g-3 d-flex flex-column">
-            <div
-              class="col-12 col-md-6 col-xl-4 w-100"
-              *ngFor="let dep of departmentEntries; trackBy: trackByDept"
-            >
-              <div class="card h-100 w-100 department-card {{ dep.name }}">
-                <div class="card-header fw-semibold">{{ dep.name }}</div>
-                <div class="card-body">
-                  <div class="prose" [innerHTML]="dep.html"></div>
-                </div>
+          <div class="d-flex flex-column gap-3">
+            @for (dept of departmentEntries; track dept.name) {
+            <div class="department-card">
+              <div
+                class="department-header"
+                [attr.data-department]="
+                  dept.name.toLowerCase().replace(' ', '-')
+                "
+              >
+                <i [class]="getDepartmentIcon(dept.name)" class="me-2"></i
+                >{{ dept.name }}
+              </div>
+              <div class="department-body">
+                <div [innerHTML]="dept.html"></div>
               </div>
             </div>
+            }
           </div>
           }
         </div>
       </div>
     </div>
   </div>
-  } @if (!aiResult && !aiIsExtracting) {
-  <div class="text-muted">
+
+  } @else if (!aiIsExtracting) {
+  <!-- Instructions -->
+  <div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
     Please select a Regulatory Body, upload a file, and click
-    <strong>Run AI Extraction</strong> to see the summary and actionables here.
+    <strong>Run AI Extraction</strong> to see the summary and actionables.
   </div>
   }
 </div>

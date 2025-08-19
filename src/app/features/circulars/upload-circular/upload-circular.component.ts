@@ -21,22 +21,18 @@ type AiResult = {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: "./upload-circular-demo.component.html",
-  styleUrl: "./upload-circular.component.css",
+  styleUrl: "./upload-circular-demo.component.css",
 })
 export class UploadCircularComponent {
-  // minimal form to satisfy template bindings
   uploadForm: FormGroup;
-
-  // UI state
-  isSubmitting = false;
   uploadError: string | null = null;
 
-  // AI flow
+  // AI extraction state
   aiFile: File | null = null;
   aiIsExtracting = false;
   aiResult: AiResult | null = null;
 
-  // Rendered sections
+  // Formatted HTML content
   summaryHtml: SafeHtml = "";
   actionablesHtml: SafeHtml = "";
   departmentEntries: Array<{ name: string; html: SafeHtml }> = [];
@@ -51,14 +47,6 @@ export class UploadCircularComponent {
     });
   }
 
-  /* ---------------- manual submit (no-op for this view) ---------------- */
-  onSubmitManual() {
-    this.isSubmitting = true;
-    this.uploadError = null;
-    setTimeout(() => (this.isSubmitting = false), 300);
-  }
-
-  /* ---------------- AI Extract ---------------- */
   onAIFileSelect(event: Event) {
     const input = event.target as HTMLInputElement;
     this.aiFile = input.files?.[0] ?? null;
@@ -67,6 +55,7 @@ export class UploadCircularComponent {
   runAIExtract() {
     this.uploadError = null;
 
+    // Validation
     if (!this.uploadForm.get("regulatoryBody")?.value) {
       this.uploadError = "Please select a regulatory body.";
       return;
@@ -77,21 +66,12 @@ export class UploadCircularComponent {
     }
 
     this.aiIsExtracting = true;
+    this.aiResult = null;
 
-    // 🔥 call your endpoint
     this.circularService.aiExtract(this.aiFile).subscribe({
-      next: (res) => {
-        this.aiResult = res;
-        console.log("AI Extract Result:", res);
-        // Render sections with your existing helpers
-        this.summaryHtml = this.sanitizeHtml(this.textToBullets(res.summary));
-        this.actionablesHtml = this.sanitizeHtml(
-          this.actionablesToHtml(res.actionable_items)
-        );
-        this.departmentEntries = this.buildDepartmentEntries(
-          res.department_summary
-        );
-
+      next: (result) => {
+        this.aiResult = result;
+        this.formatAllContent(result);
         this.aiIsExtracting = false;
       },
       error: (err) => {
@@ -102,178 +82,168 @@ export class UploadCircularComponent {
     });
   }
 
-  /* ---------------- Department helpers ---------------- */
+  private formatAllContent(result: AiResult) {
+    // Format summary with proper paragraph breaks and bold text
+    this.summaryHtml = this.sanitizer.bypassSecurityTrustHtml(
+      this.formatText(result.summary)
+    );
 
-  private buildDepartmentEntries(
-    dept: Record<string, string> | undefined | null
-  ): Array<{ name: string; html: SafeHtml }> {
-    const out: Array<{ name: string; html: SafeHtml }> = [];
-    Object.entries(dept || {}).forEach(([name, value]) => {
-      out.push({
-        name,
-        html: this.sanitizeHtml(this.textToBullets(value || "")),
-      });
-    });
-    return out;
+    // Format actionable items with nested lists and bold headers
+    this.actionablesHtml = this.sanitizer.bypassSecurityTrustHtml(
+      this.formatActionables(result.actionable_items)
+    );
+
+    // Format department entries
+    this.departmentEntries = Object.entries(
+      result.department_summary || {}
+    ).map(([name, content]) => ({
+      name,
+      html: this.sanitizer.bypassSecurityTrustHtml(this.formatText(content)),
+    }));
   }
 
-  trackByDept = (_: number, item: { name: string }) => item.name;
+  private formatText(text: string): string {
+    if (!text) return "";
 
-  /* ---------------- Rendering helpers ---------------- */
+    // Escape HTML first
+    let formatted = this.escapeHtml(text);
 
-  /** Parse summary or dept summary into proper lists with bold text */
-  private textToBullets(text: string): string {
-    const lines = (text || "").split(/\r?\n/);
+    // Convert **bold** to <strong>
+    formatted = formatted.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
 
-    let html = "";
-    let inOl = false;
-    let inUl = false;
+    // Handle numbered lists (1., 2., etc.)
+    formatted = formatted.replace(/^(\d+\.\s)/gm, "<li>$1");
 
-    const closeLists = () => {
-      if (inOl) {
-        html += "</ol>";
-        inOl = false;
-      }
-      if (inUl) {
-        html += "</ul>";
-        inUl = false;
-      }
-    };
+    // Handle bullet points (*, -, •, +)
+    formatted = formatted.replace(/^[\s]*[*\-•+]\s/gm, "<li>");
 
-    const boldify = (s: string) =>
-      this.escapeHtml(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    // Handle tab-indented items (\t* or \t+)
+    formatted = formatted.replace(
+      /^\t[\s]*[*\-•+]\s/gm,
+      "<li class='indented'>"
+    );
 
-    for (const raw of lines) {
-      const line = raw.trim();
-      if (!line) continue;
+    // Split into paragraphs on double line breaks
+    const paragraphs = formatted.split(/\n\s*\n/);
 
-      // Numbered list (1., 2., ...)
-      if (/^\d+\.\s+/.test(line)) {
-        if (!inOl) {
-          closeLists();
-          html += "<ol>";
-          inOl = true;
+    return paragraphs
+      .map((paragraph) => {
+        const trimmed = paragraph.trim();
+        if (!trimmed) return "";
+
+        // Check if this paragraph contains list items
+        if (trimmed.includes("<li>")) {
+          // Wrap list items in <ul>
+          const listItems = trimmed
+            .split("\n")
+            .map((line) => {
+              line = line.trim();
+              if (line.startsWith("<li>")) {
+                return (
+                  line
+                    .replace("<li>", "<li>")
+                    .replace(/(<li>)(\d+\.\s)?/, "$1") + "</li>"
+                );
+              }
+              if (line.startsWith("<li class='indented'>")) {
+                return line + "</li>";
+              }
+              return line;
+            })
+            .join("");
+
+          return `<ul>${listItems}</ul>`;
         }
-        html += `<li>${boldify(line.replace(/^\d+\.\s+/, ""))}</li>`;
-        continue;
-      }
 
-      // Bullet list (* text)
-      if (/^\*\s+/.test(line)) {
-        if (!inUl) {
-          closeLists();
-          html += "<ul>";
-          inUl = true;
-        }
-        html += `<li>${boldify(line.replace(/^\*\s+/, ""))}</li>`;
-        continue;
-      }
-
-      // Plain paragraph line
-      closeLists();
-      html += `<p>${boldify(line)}</p>`;
-    }
-
-    closeLists();
-    return html;
-  }
-
-  /** Convert plain text (with blank lines) into <p> paragraphs and support **bold** */
-  private textToParagraphs(text: string): string {
-    const esc = this.escapeHtml(text || "");
-    const withBold = esc.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-    return withBold
-      .split(/\n{2,}/) // blank line -> new paragraph
-      .map((chunk) => `<p>${chunk.replace(/\n/g, "<br>")}</p>`)
+        // Regular paragraph
+        return `<p>${trimmed.replace(/\n/g, "<br>")}</p>`;
+      })
       .join("");
   }
-  private escapeAndBold(s: string): string {
-    return this.escapeHtml(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  getDepartmentIcon(departmentName: string): string {
+    const iconMap: Record<string, string> = {
+      Administration: "fas fa-cogs",
+      Compliance: "fas fa-shield-alt",
+      "Risk Management": "fas fa-exclamation-triangle",
+      Operations: "fas fa-industry",
+      "IT Security": "fas fa-lock",
+      Finance: "fas fa-dollar-sign",
+      "Human Resources": "fas fa-users",
+    };
+
+    return iconMap[departmentName] || "fas fa-building";
   }
-  /** Turn AI 'actionable_items' string into nested UL/LI with bold labels */
-  /** Build nested UL/LI where **Section:** is a header and following bullets belong to it */
-  private actionablesToHtml(text: string): string {
-    const lines = (text || "").split(/\r?\n/);
+  private formatActionables(text: string): string {
+    if (!text) return "";
 
+    const lines = text
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line);
     let html = "";
-    let openTop = false; // <ul> (top level)
-    let openSection = false; // currently inside <li><strong>…</strong><ul>…</ul></li>
+    let currentSection = "";
+    let inList = false;
 
-    const openTopList = () => {
-      if (!openTop) {
-        html += `<ul class="ai-top">`;
-        openTop = true;
-      }
-    };
-    const closeSection = () => {
-      if (openSection) {
-        html += `</ul></li>`;
-        openSection = false;
-      }
-    };
-    const closeAll = () => {
-      closeSection();
-      if (openTop) {
-        html += `</ul>`;
-        openTop = false;
-      }
-    };
-
-    for (const raw of lines) {
-      const line = raw.trim();
-      if (!line) continue;
-
-      // Section header: **Something:**   (colon optional in source)
-      const section = line.match(/^\*\*([^*]+)\*\*:?\s*$/);
-      if (section) {
-        openTopList();
-        closeSection(); // finish previous section
-        const title = this.escapeHtml(section[1].trim());
-        html += `<li><strong>${title}:</strong><ul>`; // start nested list for this section
-        openSection = true;
-        continue;
-      }
-
-      // Regular bullets inside/outside a section: "*", "-", or "•"
-      if (/^[*\-•]\s+/.test(line)) {
-        openTopList();
-        const content = this.escapeAndBold(line.replace(/^[*\-•]\s+/, ""));
-        if (openSection) {
-          html += `<li>${content}</li>`; // nested under current section
-        } else {
-          html += `<li>${content}</li>`; // top-level bullet (rare case)
+    for (const line of lines) {
+      // Check for department headers: **Department Name**
+      const deptMatch = line.match(/^\*\*([^*]+)\*\*$/);
+      if (deptMatch) {
+        if (inList) {
+          html += "</ul>";
+          inList = false;
         }
+        currentSection = deptMatch[1].trim();
+        html += `<h6 class="fw-bold text-primary mt-3 mb-2">${this.escapeHtml(
+          currentSection
+        )}</h6>`;
         continue;
       }
 
-      // Plus-style sub bullets (“+ …”) – keep as list items under current section if open
-      if (/^\+\s+/.test(line)) {
-        openTopList();
-        const content = this.escapeAndBold(line.replace(/^\+\s+/, ""));
-        if (openSection) {
-          html += `<li>${content}</li>`;
-        } else {
-          html += `<li>${content}</li>`;
+      // Check for bullet points
+      if (line.match(/^[*\-•+]\s/)) {
+        if (!inList) {
+          html += "<ul>";
+          inList = true;
         }
+        const content = line.replace(/^[*\-•+]\s/, "");
+        html += `<li>${this.formatInlineText(content)}</li>`;
         continue;
       }
 
-      // Plain text lines – attach as an item under the current section, or a top-level item
-      const content = this.escapeAndBold(line);
-      openTopList();
-      if (openSection) {
-        html += `<li>${content}</li>`;
-      } else {
-        html += `<li>${content}</li>`;
+      // Check for sub-bullets (indented with tabs or spaces)
+      if (line.match(/^\s+[*\-•+]\s/) || line.match(/^\t[*\-•+]\s/)) {
+        if (!inList) {
+          html += "<ul>";
+          inList = true;
+        }
+        const content = line.replace(/^\s*[*\-•+]\s/, "");
+        html += `<li class="ms-3">${this.formatInlineText(content)}</li>`;
+        continue;
+      }
+
+      // Regular text
+      if (inList) {
+        html += "</ul>";
+        inList = false;
+      }
+
+      if (line) {
+        html += `<p>${this.formatInlineText(line)}</p>`;
       }
     }
 
-    closeAll();
+    if (inList) {
+      html += "</ul>";
+    }
+
     return html;
   }
 
-  private sanitizeHtml(html: string): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(html);
+  private formatInlineText(text: string): string {
+    return this.escapeHtml(text).replace(
+      /\*\*(.+?)\*\*/g,
+      "<strong>$1</strong>"
+    );
   }
 
   private escapeHtml(text: string): string {
@@ -281,5 +251,12 @@ export class UploadCircularComponent {
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");
+  }
+
+  trackByDept = (_: number, item: { name: string }) => item.name;
+
+  // Placeholder methods referenced in template
+  onSubmitManual() {
+    // No-op for this demo
   }
 }
