@@ -8,6 +8,7 @@ import {
 } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { DomSanitizer, SafeHtml } from "@angular/platform-browser";
+import { CircularService } from "../../../core/services/circular.service";
 
 type AiResult = {
   summary: string;
@@ -40,7 +41,11 @@ export class UploadCircularComponent {
   actionablesHtml: SafeHtml = "";
   departmentEntries: Array<{ name: string; html: SafeHtml }> = [];
 
-  constructor(private fb: FormBuilder, private sanitizer: DomSanitizer) {
+  constructor(
+    private fb: FormBuilder,
+    private sanitizer: DomSanitizer,
+    private circularService: CircularService
+  ) {
     this.uploadForm = this.fb.group({
       regulatoryBody: ["", Validators.required],
     });
@@ -73,43 +78,28 @@ export class UploadCircularComponent {
 
     this.aiIsExtracting = true;
 
-    setTimeout(() => {
-      this.aiResult = {
-        summary:
-          "The document is a circular issued by the Reserve Bank of India (RBI) to all scheduled commercial banks, local area banks, and small finance banks regarding compliance functions in banks and the role of Chief Compliance Officer (CCO). The circular aims to bring uniformity in approach followed by banks in this regard.\n\nKey points from the document are:\n\n1. Banks are required to have an effective compliance culture, independent corporate compliance function, and strong compliance risk management program at bank and group levels.\n2. The CCO should be a senior executive with a minimum of 15 years' experience in banking or financial services, and possess certain skills and stature.\n3. The selection process for the CCO should be done through a well-defined selection committee constituted by the Board.\n4. The CCO should have direct reporting lines to the MD & CEO and/or the Board/Board Committee (ACB).\n5. The compliance function should have the authority to communicate with any staff member, access all records or files necessary for compliance issues, and report promptly to the Board/ACB/MD & CEO about major changes or observations relating to compliance risk.\n6. The duties and responsibilities of the compliance function include conducting assessments of compliance risk, developing risk-oriented activity plans, reporting on compliance failures/breaches, monitoring and testing compliance, examining sustenance of compliance, and ensuring compliance with supervisory observations made by RBI.\n7. Internal audit should be conducted on the compliance function.\n8. There should be no \"dual hatting\" or conflict of interest in the role of the CCO.\n9. The bank's Board of Directors is overall responsible for overseeing the effective management of the bank's compliance function and compliance risk.\n\nThe circular will come into effect immediately, and any new appointment shall be governed by the instructions contained herein. Existing CCOs may follow the indicated processes within a period of six months to ensure their appointment meets the requirements.",
-        actionable_items:
-          "Here are the actionable instructions or policy changes extracted from the document, organized by department:\n\n**Compliance:**\n\n* A bank shall lay down a Board-approved compliance policy clearly spelling out its compliance philosophy, expectations on compliance culture, structure and role of the compliance function, and processes for identifying, assessing, monitoring, managing, and reporting on compliance risk throughout the bank.\n* The bank shall develop and maintain a quality assurance and improvement program covering all aspects of the compliance function, subject to independent external review periodically (at least once in three years).\n\n**Risk Management:**\n\n* Banks are required to have an effective compliance risk management programme at bank and group level.\n\n**No actionable items for these departments:**\nAdministration, Operations, IT Security, Finance, Human Resources",
-        department_summary: {
-          Administration: "No summary/instruction to this department.",
-          Compliance:
-            "Summary for the Compliance department:\n\nAs part of a robust compliance system, banks are required to have an effective compliance culture, independent corporate compliance function, and strong compliance risk management program. The Chief Compliance Officer (CCO) is responsible for managing compliance risk effectively.\n\nThe guidelines emphasize the importance of having a Board-approved compliance policy that clearly outlines the bank's compliance philosophy, expectations on compliance culture, structure and role of the compliance function, and processes for identifying, assessing, monitoring, and reporting on compliance risk. The policy should also reflect the size, complexity, and compliance risk profile of the bank.\n\nAdditionally, the guidelines stress the need to develop and maintain a quality assurance and improvement program covering all aspects of the compliance function, which shall be subject to independent external review periodically (at least once in three years).",
-          "Risk Management":
-            'Summary for the "Risk Management" department:\n\n* Banks are required to have an effective compliance risk management program at bank and group level, which includes identifying, assessing, monitoring, managing, and reporting on compliance risks throughout the bank.\n* The compliance risk management program should reflect the size, complexity, and compliance risk profile of the bank, as well as ensure compliance with all applicable statutory provisions, rules, and regulations.\n\nNo summary/instruction to this department.',
-          Operations:
-            'Summary related to the "Operations" department:\n\nNo summary/instruction to this department.',
-          "IT Security": "No summary/instruction to this department.",
-          Finance:
-            'Summary related to the "Finance" department:\n\nNo summary/instruction to this department.',
-          "Human Resources": "No summary/instruction to this department.",
-        },
-      };
-      // ---------------------------------------------------------------
+    // 🔥 call your endpoint
+    this.circularService.aiExtract(this.aiFile).subscribe({
+      next: (res) => {
+        this.aiResult = res;
+        console.log("AI Extract Result:", res);
+        // Render sections with your existing helpers
+        this.summaryHtml = this.sanitizeHtml(this.textToBullets(res.summary));
+        this.actionablesHtml = this.sanitizeHtml(
+          this.actionablesToHtml(res.actionable_items)
+        );
+        this.departmentEntries = this.buildDepartmentEntries(
+          res.department_summary
+        );
 
-      // Build rendered HTML sections
-      this.summaryHtml = this.sanitizeHtml(
-        this.textToParagraphs(this.aiResult.summary)
-      );
-      this.actionablesHtml = this.sanitizeHtml(
-        this.actionablesToHtml(this.aiResult.actionable_items)
-      );
-
-      // Build department-wise entries (cards)
-      this.departmentEntries = this.buildDepartmentEntries(
-        this.aiResult.department_summary
-      );
-
-      this.aiIsExtracting = false;
-    }, 900);
+        this.aiIsExtracting = false;
+      },
+      error: (err) => {
+        this.aiIsExtracting = false;
+        this.uploadError =
+          err?.error?.message || err?.message || "AI extraction failed";
+      },
+    });
   }
 
   /* ---------------- Department helpers ---------------- */
@@ -121,7 +111,7 @@ export class UploadCircularComponent {
     Object.entries(dept || {}).forEach(([name, value]) => {
       out.push({
         name,
-        html: this.sanitizeHtml(this.textToParagraphs(value || "")),
+        html: this.sanitizeHtml(this.textToBullets(value || "")),
       });
     });
     return out;
@@ -130,6 +120,63 @@ export class UploadCircularComponent {
   trackByDept = (_: number, item: { name: string }) => item.name;
 
   /* ---------------- Rendering helpers ---------------- */
+
+  /** Parse summary or dept summary into proper lists with bold text */
+  private textToBullets(text: string): string {
+    const lines = (text || "").split(/\r?\n/);
+
+    let html = "";
+    let inOl = false;
+    let inUl = false;
+
+    const closeLists = () => {
+      if (inOl) {
+        html += "</ol>";
+        inOl = false;
+      }
+      if (inUl) {
+        html += "</ul>";
+        inUl = false;
+      }
+    };
+
+    const boldify = (s: string) =>
+      this.escapeHtml(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (!line) continue;
+
+      // Numbered list (1., 2., ...)
+      if (/^\d+\.\s+/.test(line)) {
+        if (!inOl) {
+          closeLists();
+          html += "<ol>";
+          inOl = true;
+        }
+        html += `<li>${boldify(line.replace(/^\d+\.\s+/, ""))}</li>`;
+        continue;
+      }
+
+      // Bullet list (* text)
+      if (/^\*\s+/.test(line)) {
+        if (!inUl) {
+          closeLists();
+          html += "<ul>";
+          inUl = true;
+        }
+        html += `<li>${boldify(line.replace(/^\*\s+/, ""))}</li>`;
+        continue;
+      }
+
+      // Plain paragraph line
+      closeLists();
+      html += `<p>${boldify(line)}</p>`;
+    }
+
+    closeLists();
+    return html;
+  }
 
   /** Convert plain text (with blank lines) into <p> paragraphs and support **bold** */
   private textToParagraphs(text: string): string {

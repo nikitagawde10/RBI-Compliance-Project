@@ -7,13 +7,14 @@ import {
   FilterParams,
 } from "../models/api.model";
 import { Circular, AIAnalysis } from "../models/circular.model";
+import { HttpClient } from "@angular/common/http";
 
 // Define the AI extract response interface
-export interface AIExtractResponse {
+export type AIExtractResponse = {
   summary: string;
   actionable_items: string;
-  department_summary: string;
-}
+  department_summary: Record<string, string>;
+};
 
 // Define the created circular interface
 export interface CreatedCircular {
@@ -36,7 +37,8 @@ export interface CreatedCircular {
 
 @Injectable({ providedIn: "root" })
 export class CircularService {
-  constructor(private api: ApiService) {}
+  ANALYZE_URL = "http://192.168.1.26:9006/analyze/";
+  constructor(private api: ApiService, private http: HttpClient) {}
 
   getCirculars(params?: FilterParams): Observable<ApiResponse<Circular[]>> {
     return this.api.get<Circular[]>("circulars", params);
@@ -94,9 +96,11 @@ export class CircularService {
    * AI extract endpoint using FormData.
    * Backend route (mocked in ApiService): POST_FORMDATA circulars/ai-extract
    */
-  aiExtract(file: File): Observable<ApiResponse<AIExtractResponse>> {
+  aiExtract(file: File): Observable<AIExtractResponse> {
     const fd = new FormData();
-    fd.append("file", file);
-    return this.api.postFormData<AIExtractResponse>("circulars/ai-extract", fd);
+    // The field name 'file' must match what your backend expects
+    fd.append("file", file, file.name);
+    // Do NOT set Content-Type manually; let the browser set the multipart boundary
+    return this.http.post<AIExtractResponse>(this.ANALYZE_URL, fd);
   }
 }
