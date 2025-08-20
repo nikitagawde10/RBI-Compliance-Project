@@ -123,6 +123,84 @@
   height: 1rem;
 }
 
+/* Modal specific styles */
+.modal {
+  z-index: 1055;
+}
+
+.modal-backdrop {
+  z-index: 1050;
+}
+
+.modal-lg {
+  max-width: 800px;
+}
+
+/* Email content styling */
+.modal-body textarea {
+  resize: vertical;
+  min-height: 300px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.modal-body .bg-light {
+  background-color: #f8f9fa !important;
+  border: 1px solid #dee2e6;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Email preview formatting */
+.modal-body .bg-light p {
+  margin-bottom: 0.75rem;
+  line-height: 1.6;
+}
+
+.modal-body .bg-light ul {
+  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+}
+
+.modal-body .bg-light ul li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.modal-body .bg-light strong {
+  color: #495057;
+  font-weight: 600;
+}
+
+/* Success animation */
+.alert-success .fa-check-circle {
+  animation: successPulse 0.6s ease-in-out;
+}
+
+@keyframes successPulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Edit/Preview button styling */
+.btn-outline-secondary.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  border-radius: 0.25rem;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .card-body,
@@ -140,23 +218,40 @@
     padding: 0.6rem 0.75rem;
     font-size: 0.95rem;
   }
+
+  .modal-lg {
+    max-width: 95%;
+    margin: 1rem auto;
+  }
+
+  .modal-body textarea {
+    min-height: 250px;
+  }
+
+  .modal-body .bg-light {
+    min-height: 250px;
+  }
 }
 
 /* Scrollbar styling for webkit browsers */
-.card-body::-webkit-scrollbar {
+.card-body::-webkit-scrollbar,
+.modal-body textarea::-webkit-scrollbar {
   width: 6px;
 }
 
-.card-body::-webkit-scrollbar-track {
+.card-body::-webkit-scrollbar-track,
+.modal-body textarea::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 3px;
 }
 
-.card-body::-webkit-scrollbar-thumb {
+.card-body::-webkit-scrollbar-thumb,
+.modal-body textarea::-webkit-scrollbar-thumb {
   background: #c1c1c1;
   border-radius: 3px;
 }
 
-.card-body::-webkit-scrollbar-thumb:hover {
+.card-body::-webkit-scrollbar-thumb:hover,
+.modal-body textarea::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }

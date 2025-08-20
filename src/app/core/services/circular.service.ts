@@ -14,6 +14,7 @@ export type AIExtractResponse = {
   summary: string;
   actionable_items: string;
   department_summary: Record<string, string>;
+  acknowledgment_email: string;
 };
 
 // Define the created circular interface
@@ -37,7 +38,7 @@ export interface CreatedCircular {
 
 @Injectable({ providedIn: "root" })
 export class CircularService {
-  ANALYZE_URL = "http://192.168.1.26:9006/analyze/";
+  ANALYZE_URL = "https://ipt01.neoquant.com:9010/analyze/";
   constructor(private api: ApiService, private http: HttpClient) {}
 
   getCirculars(params?: FilterParams): Observable<ApiResponse<Circular[]>> {
@@ -102,5 +103,8 @@ export class CircularService {
     fd.append("file", file, file.name);
     // Do NOT set Content-Type manually; let the browser set the multipart boundary
     return this.http.post<AIExtractResponse>(this.ANALYZE_URL, fd);
+  }
+  generateEmailContent() {
+    return this.http.get<string>(`${this.ANALYZE_URL}generate-email-content`);
   }
 }

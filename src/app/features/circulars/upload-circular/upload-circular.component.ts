@@ -14,6 +14,7 @@ type AiResult = {
   summary: string;
   actionable_items: string;
   department_summary: Record<string, string>;
+  acknowledgment_email: string;
 };
 
 @Component({
@@ -36,6 +37,14 @@ export class UploadCircularComponent {
   summaryHtml: SafeHtml = "";
   actionablesHtml: SafeHtml = "";
   departmentEntries: Array<{ name: string; html: SafeHtml }> = [];
+
+  // Email acknowledgment modal state
+  showEmailModal = false;
+  isEditingEmail = false;
+  emailContent = "";
+  emailHtml: SafeHtml = "";
+
+  emailSent = false;
 
   constructor(
     private fb: FormBuilder,
@@ -80,6 +89,75 @@ export class UploadCircularComponent {
           err?.error?.message || err?.message || "AI extraction failed";
       },
     });
+  }
+
+  // Email modal methods
+  openEmailModal() {
+    if (!this.aiResult) {
+      this.uploadError =
+        "No AI result available. Please run AI extraction first.";
+      console.log("No aiResult found");
+      return;
+    }
+
+    if (!this.aiResult.acknowledgment_email) {
+      console.log("No acknowledgment_email in aiResult:", this.aiResult);
+      // For now, let's use a fallback email if the field doesn't exist
+      const fallbackEmail = `Subject: Acknowledgment of Receipt - Regulatory Circular
+
+Dear Team,
+
+This is to acknowledge that we have received the regulatory circular and have reviewed its contents.
+
+Our compliance team will analyze the requirements and coordinate with relevant departments for implementation.
+
+Best regards,
+Compliance Officer`;
+
+      this.emailContent = fallbackEmail;
+      this.emailHtml = this.sanitizer.bypassSecurityTrustHtml(
+        this.formatText(fallbackEmail)
+      );
+    } else {
+      // Use the acknowledgment email from AI result and format it
+      this.emailContent = this.aiResult.acknowledgment_email;
+      this.emailHtml = this.sanitizer.bypassSecurityTrustHtml(
+        this.formatText(this.aiResult.acknowledgment_email)
+      );
+    }
+
+    this.showEmailModal = true;
+    this.isEditingEmail = false;
+    this.emailSent = false;
+  }
+
+  closeEmailModal() {
+    this.showEmailModal = false;
+    this.isEditingEmail = false;
+    this.emailSent = false;
+  }
+
+  toggleEditEmail() {
+    this.isEditingEmail = !this.isEditingEmail;
+  }
+
+  sendEmail() {
+    // Simulate email sending
+    this.emailSent = true;
+
+    // Auto-close modal after 2 seconds
+    setTimeout(() => {
+      this.closeEmailModal();
+    }, 2000);
+  }
+
+  onEmailContentChange(event: Event) {
+    const target = event.target as HTMLTextAreaElement;
+    this.emailContent = target.value;
+    // Re-format the HTML when content changes
+    this.emailHtml = this.sanitizer.bypassSecurityTrustHtml(
+      this.formatText(this.emailContent)
+    );
   }
 
   private formatAllContent(result: AiResult) {
@@ -160,6 +238,7 @@ export class UploadCircularComponent {
       })
       .join("");
   }
+
   getDepartmentIcon(departmentName: string): string {
     const iconMap: Record<string, string> = {
       Administration: "fas fa-cogs",
@@ -173,6 +252,7 @@ export class UploadCircularComponent {
 
     return iconMap[departmentName] || "fas fa-building";
   }
+
   private formatActionables(text: string): string {
     if (!text) return "";
 
@@ -254,9 +334,4 @@ export class UploadCircularComponent {
   }
 
   trackByDept = (_: number, item: { name: string }) => item.name;
-
-  // Placeholder methods referenced in template
-  onSubmitManual() {
-    // No-op for this demo
-  }
 }
