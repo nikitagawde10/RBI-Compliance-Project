@@ -17,12 +17,20 @@
               "sourceMap": true
             },
             "production": {
-              "aot": true,
-              "extractLicenses": true,
-              "namedChunks": false,
-              "optimization": true,
-              "outputHashing": "all",
-              "sourceMap": false
+              "baseHref": "/AICompliance/",
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "1mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kb",
+                  "maximumError": "4kb"
+                }
+              ],
+              "outputHashing": "all"
             }
           },
           "options": {
