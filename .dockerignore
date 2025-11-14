@@ -10,3 +10,4 @@ coverage
 .vscode
 dist
 .angular
+.DS_Store

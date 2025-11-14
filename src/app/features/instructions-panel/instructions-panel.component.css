@@ -1,0 +1,127 @@
+.card {
+  border-radius: 12px;
+}
+.btn-outline-primary {
+  font-weight: 600;
+  padding: 10px;
+}
+
+.instructions-list {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+  line-height: 1.5;
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 1.5rem;
+}
+
+.instructions-list li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+  padding: 12px 14px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 3px solid transparent;
+}
+
+.instructions-list li:nth-child(1) {
+  border-left-color: #0d6efd;
+}
+
+.instructions-list li:nth-child(2) {
+  border-left-color: #198754;
+}
+
+.instructions-list li:nth-child(3) {
+  border-left-color: #0dcaf0;
+}
+
+.instructions-list li:nth-child(4) {
+  border-left-color: #ffc107;
+}
+
+.instructions-list li:nth-child(5) {
+  border-left-color: #6c757d;
+}
+
+.icon-wrapper {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  margin-right: 12px;
+  font-size: 14px;
+}
+
+.instructions-list li:nth-child(1) .icon-wrapper {
+  background: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+}
+
+.instructions-list li:nth-child(2) .icon-wrapper {
+  background: rgba(25, 135, 84, 0.1);
+  color: #198754;
+}
+
+.instructions-list li:nth-child(3) .icon-wrapper {
+  background: rgba(13, 202, 240, 0.1);
+  color: #0dcaf0;
+}
+
+.instructions-list li:nth-child(4) .icon-wrapper {
+  background: rgba(255, 193, 7, 0.15);
+  color: #d39e00;
+}
+
+.instructions-list li:nth-child(5) .icon-wrapper {
+  background: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+}
+
+.instruction-text {
+  flex: 1;
+  padding-top: 2px;
+}
+
+.instruction-text strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.sample-section {
+  background: linear-gradient(
+    135deg,
+    rgb(44, 184, 121) 7%,
+    rgb(64, 105, 255) 100%
+  );
+  padding: 20px;
+  border-radius: 12px;
+  color: white;
+  margin-top: 8px;
+}
+
+.sample-section h5 {
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.sample-section p {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.sample-section .btn {
+  background: white;
+  color: #667eea;
+  font-weight: 600;
+  border: none;
+  padding: 10px 20px;
+}
