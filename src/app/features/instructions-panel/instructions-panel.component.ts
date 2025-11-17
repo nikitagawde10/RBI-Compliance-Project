@@ -9,10 +9,10 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 })
 export class InstructionsPanel {
   downloadSampleFiles(): void {
-    const url = "assets/AIComplianceSampleDocuments.zip";
+    const url = "assets/regulatory_document_analyser.zip";
     const a = document.createElement("a");
     a.href = url;
-    a.download = "AIComplianceSampleDocuments.zip";
+    a.download = "regulatory_document_analyser.zip";
     document.body.appendChild(a);
     a.click();
     a.remove();
